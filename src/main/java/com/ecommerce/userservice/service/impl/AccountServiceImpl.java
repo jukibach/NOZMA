@@ -1,7 +1,9 @@
 package com.ecommerce.userservice.service.impl;
 
 import com.ecommerce.userservice.dto.request.LoginRequest;
+import com.ecommerce.userservice.dto.request.PagePayload;
 import com.ecommerce.userservice.dto.request.UserRegistrationRequest;
+import com.ecommerce.userservice.dto.response.AccountPageResponse;
 import com.ecommerce.userservice.dto.response.LoginResponse;
 import com.ecommerce.userservice.dto.response.UserRegistrationResponse;
 import com.ecommerce.userservice.entity.Account;
@@ -9,6 +11,7 @@ import com.ecommerce.userservice.entity.AccountRole;
 import com.ecommerce.userservice.enums.Role;
 import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.mapper.AccountMapper;
+import com.ecommerce.userservice.mybatis.mapper.MybatisUserMapper;
 import com.ecommerce.userservice.repository.AccountRepository;
 import com.ecommerce.userservice.repository.AccountRoleRepository;
 import com.ecommerce.userservice.repository.RolePrivilegeRepository;
@@ -17,6 +20,7 @@ import com.ecommerce.userservice.service.LoginHistoryService;
 import com.ecommerce.userservice.service.UserService;
 import com.ecommerce.userservice.util.CommonUtil;
 import com.ecommerce.userservice.util.JwtUtil;
+import com.ecommerce.userservice.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,6 +46,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final MybatisUserMapper mybatisUserMapper;
     
     @Override
     public Account findByAccountName(String accountName) {
@@ -50,6 +55,25 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException("Account ".concat(accountName).concat(" does not exist"));
         }
         return account;
+    }
+    
+    @Override
+    public AccountPageResponse getAccountList(PagePayload pagePayload) {
+        if (CommonUtil.isNullOrEmpty(SecurityUtil.getCurrentAccountName())) {
+            throw new BusinessException("Account name does not exist");
+        }
+        if (!pagePayload.visibleColumns().contains(Account.Fields.accountName)) {
+            throw new BusinessException("Column Account Name must be selected");
+        }
+        
+        var accountResponses = mybatisUserMapper.selectFields(pagePayload);
+
+//        if (CommonUtil.isNullOrEmpty(accountResponse)) {
+//            throw new BusinessException("Account Name must be selected");
+//        }
+        
+        return new AccountPageResponse(pagePayload.pageSize(), pagePayload.pageIndex(), accountResponses.size(),
+                accountResponses);
     }
     
     @Override

@@ -1,10 +1,9 @@
 package com.ecommerce.userservice.controller;
 
 import com.ecommerce.userservice.dto.request.LoginRequest;
+import com.ecommerce.userservice.dto.request.PagePayload;
 import com.ecommerce.userservice.dto.request.UserRegistrationRequest;
 import com.ecommerce.userservice.dto.response.ApiResponse;
-import com.ecommerce.userservice.dto.response.LoginResponse;
-import com.ecommerce.userservice.dto.response.UserRegistrationResponse;
 import com.ecommerce.userservice.service.AccountService;
 import com.ecommerce.userservice.util.ResponseEntityUtil;
 import lombok.AllArgsConstructor;
@@ -22,19 +21,21 @@ public class AuthenticationController {
     
     @PostMapping(value = "/login")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse loginResponse = accountService.login(request);
-        return ResponseEntityUtil.createSuccessResponse(loginResponse);
+        return ResponseEntityUtil.createSuccessResponse(accountService.login(request));
     }
     
     @PostMapping(value = "/register/users")
     public ResponseEntity<ApiResponse> registerNewUserAccount(@RequestBody UserRegistrationRequest request) {
-        UserRegistrationResponse userRegistrationResponse = accountService.registerNewAccount(request);
-        return ResponseEntityUtil.createSuccessResponse(userRegistrationResponse);
+        return ResponseEntityUtil.createSuccessResponse(accountService.registerNewAccount(request));
+    }
+    
+    @PostMapping(value = "/accounts/listAccount")
+    public ResponseEntity<ApiResponse> getAccountList(@RequestBody PagePayload request) {
+        return ResponseEntityUtil.createSuccessResponse(accountService.getAccountList(request));
     }
     
     @PostMapping(value = "/register/sellers")
     public ResponseEntity<ApiResponse> registerNewSellerAccount(@RequestBody UserRegistrationRequest request) {
-//        accountService.registerNewAccount(request);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
 }

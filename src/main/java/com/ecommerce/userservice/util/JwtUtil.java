@@ -4,8 +4,8 @@ package com.ecommerce.userservice.util;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.ecommerce.userservice.config.ApplicationProperties;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -35,18 +35,21 @@ public class JwtUtil {
     }
     
     public String validateToken(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(applicationProperties.getJwtSecretKey());
-            return JWT.require(algorithm)
-                    .build()
-                    .verify(token)
-                    .getSubject();
-        } catch (JWTVerificationException exception) {
-            throw new JWTVerificationException("Error while validating token", exception);
-        }
+        Algorithm algorithm = Algorithm.HMAC256(applicationProperties.getJwtSecretKey());
+        return JWT.require(algorithm)
+                .build()
+                .verify(token)
+                .getSubject();
+        
     }
     
     private Instant genAccessExpirationDate() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+    
+    public String retrieveToken(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (CommonUtil.isNullOrEmpty(authHeader)) return null;
+        return authHeader.replace("Bearer ", "");
     }
 }
