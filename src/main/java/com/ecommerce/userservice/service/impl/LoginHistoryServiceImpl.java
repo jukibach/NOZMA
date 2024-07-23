@@ -27,23 +27,23 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
     public void saveFailedLogin(LoginRequest loginRequest, Account account, String failureReason) {
         
         // if this is the first failed login or there has been less than 5 failed login attempts
-        if (CommonUtil.isNullOrEmpty(loginAttempt.get(loginRequest.accountName()))
-                || loginAttempt.get(loginRequest.accountName()) < 5) {
-            var failedAttemptNumber = loginAttempt.getOrDefault(loginRequest.accountName(), 0);
-            loginAttempt.put(loginRequest.accountName(), failedAttemptNumber + 1);
+        if (CommonUtil.isNullOrEmpty(loginAttempt.get(loginRequest.getAccountName()))
+                || loginAttempt.get(loginRequest.getAccountName()) < 5) {
+            var failedAttemptNumber = loginAttempt.getOrDefault(loginRequest.getAccountName(), 0);
+            loginAttempt.put(loginRequest.getAccountName(), failedAttemptNumber + 1);
         }
         
         var failedLogin = LoginHistory.builder()
                 .accountId(account.getId())
                 .userId(account.getUserId())
-                .accountName(loginRequest.accountName())
-                .ipAddress(loginRequest.ipAddress())
+                .accountName(loginRequest.getAccountName())
+                .ipAddress(loginRequest.getIpAddress())
                 .isLoginSuccessful(false)
-                .loginTimestamp(DateUtil.toLocalDateTime(loginRequest.loginTimestamp()))
-                .deviceType(DeviceType.valueOf(loginRequest.deviceType()))
-                .deviceOs(loginRequest.deviceOS())
-                .browserName(loginRequest.browserName())
-                .browserVersion(loginRequest.browserVersion())
+                .loginTimestamp(DateUtil.toLocalDateTime(loginRequest.getLoginTimestamp()))
+                .deviceType(DeviceType.valueOf(loginRequest.getDeviceType()))
+                .deviceOs(loginRequest.getDeviceOS())
+                .browserName(loginRequest.getBrowserName())
+                .browserVersion(loginRequest.getBrowserVersion())
                 .failureReason(failureReason)
                 .build();
         loginHistoryRepository.save(failedLogin);
@@ -61,19 +61,19 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
         // Delete failed login attempts
         // What if other people fail login from another device when the server is deleting these failed records ?
 
-        loginHistoryRepository.deactivateByAccountName(loginRequest.accountName());
-        loginAttempt.remove(loginRequest.accountName());
+        loginHistoryRepository.deactivateByAccountName(loginRequest.getAccountName());
+        loginAttempt.remove(loginRequest.getAccountName());
         
         var successfulLogin = LoginHistory.builder()
                 .accountId(account.getId())
                 .userId(account.getUserId())
-                .accountName(loginRequest.accountName())
-                .ipAddress(loginRequest.ipAddress())
-                .loginTimestamp(DateUtil.toLocalDateTime(loginRequest.loginTimestamp()))
-                .deviceType(DeviceType.valueOf(loginRequest.deviceType()))
-                .deviceOs(loginRequest.deviceOS())
-                .browserName(loginRequest.browserName())
-                .browserVersion(loginRequest.browserVersion())
+                .accountName(loginRequest.getAccountName())
+                .ipAddress(loginRequest.getIpAddress())
+                .loginTimestamp(DateUtil.toLocalDateTime(loginRequest.getLoginTimestamp()))
+                .deviceType(DeviceType.valueOf(loginRequest.getDeviceType()))
+                .deviceOs(loginRequest.getDeviceOS())
+                .browserName(loginRequest.getBrowserName())
+                .browserVersion(loginRequest.getBrowserVersion())
                 .isLoginSuccessful(true)
                 .build();
         loginHistoryRepository.save(successfulLogin);

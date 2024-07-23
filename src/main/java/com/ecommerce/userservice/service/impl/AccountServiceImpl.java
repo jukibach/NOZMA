@@ -78,7 +78,7 @@ public class AccountServiceImpl implements AccountService {
     
     @Override
     public LoginResponse login(LoginRequest request) {
-        var account = findByAccountName(request.accountName());
+        var account = findByAccountName(request.getAccountName());
         
         if (account.isLocked()) {
             loginHistoryService.saveFailedLogin(request, account, "Account is being locked!");
@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
                             .concat(account.getAccountName())
                             .concat(" has been locked!"));
         }
-        if (!passwordEncoder.matches(request.password(), account.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
             loginHistoryService.saveFailedLogin(request, account, "Incorrect password");
             if (account.isLocked()) {
                 throw new BusinessException(account.getAccountName()
@@ -114,7 +114,7 @@ public class AccountServiceImpl implements AccountService {
         loginHistoryService.saveSuccessfulLogin(request, account);
         
         return new LoginResponse(account.getAccountName(), account.getEmail(), profileToken, roleNames, privilegeNames,
-                request.loginTimestamp());
+                request.getLoginTimestamp());
     }
     
     @Override

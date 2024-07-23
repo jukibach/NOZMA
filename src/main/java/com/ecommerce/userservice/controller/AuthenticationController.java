@@ -6,6 +6,7 @@ import com.ecommerce.userservice.dto.request.UserRegistrationRequest;
 import com.ecommerce.userservice.dto.response.ApiResponse;
 import com.ecommerce.userservice.service.AccountService;
 import com.ecommerce.userservice.util.ResponseEntityUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class AuthenticationController {
     private final AccountService accountService;
     
     @PostMapping(value = "/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntityUtil.createSuccessResponse(accountService.login(request));
     }
     
@@ -32,10 +33,5 @@ public class AuthenticationController {
     @PostMapping(value = "/accounts/listAccount")
     public ResponseEntity<ApiResponse> getAccountList(@RequestBody PagePayload request) {
         return ResponseEntityUtil.createSuccessResponse(accountService.getAccountList(request));
-    }
-    
-    @PostMapping(value = "/register/sellers")
-    public ResponseEntity<ApiResponse> registerNewSellerAccount(@RequestBody UserRegistrationRequest request) {
-        return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
 }
