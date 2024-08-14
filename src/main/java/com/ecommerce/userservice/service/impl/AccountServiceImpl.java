@@ -23,7 +23,9 @@ import com.ecommerce.userservice.util.JwtUtil;
 import com.ecommerce.userservice.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,6 +49,7 @@ public class AccountServiceImpl implements AccountService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final MybatisUserMapper mybatisUserMapper;
+    private final AuthenticationManager authenticationManager;
     
     @Override
     public Account findByAccountName(String accountName) {
@@ -108,7 +111,9 @@ public class AccountServiceImpl implements AccountService {
         List<SimpleGrantedAuthority> authorities = roleNames.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-        var authentication = new UsernamePasswordAuthenticationToken(account, null, authorities);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(account, null, authorities));
+        
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         loginHistoryService.saveSuccessfulLogin(request, account);

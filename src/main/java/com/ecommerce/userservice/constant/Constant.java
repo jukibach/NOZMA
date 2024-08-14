@@ -5,6 +5,8 @@ public class Constant {
     private Constant() {
     }
     
+    public static final String EMPTY = "";
+    
     public static final String ON = " ON ";
     public static final String AS = " AS ";
     public static final String COMMA = ", ";

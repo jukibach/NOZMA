@@ -1,16 +1,22 @@
 package com.ecommerce.userservice.cache;
 
+import com.ecommerce.userservice.util.CommonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Slf4j
 public class CacheStore<K, V> {
     private final Map<K, V> cache = new ConcurrentHashMap<>();
     
-    public void put(K key, V value) {
-        cache.put(key, value);
+    public void add(K key, V value) {
+        if (CommonUtil.isNonNullOrNonEmpty(key) && CommonUtil.isNonNullOrNonEmpty(value)) {
+            cache.put(key, value);
+            log.info("Key {} is added", key);
+        }
     }
     
     public V get(K key) {
