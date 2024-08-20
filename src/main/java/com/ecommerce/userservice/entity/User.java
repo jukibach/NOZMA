@@ -40,7 +40,4 @@ public class User extends BaseDomain {
     
     private Integer age;
     
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserRole> userRoles;
-    
 }

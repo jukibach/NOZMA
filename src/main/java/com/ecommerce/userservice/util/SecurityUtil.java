@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.util;
 
 import com.ecommerce.userservice.entity.Account;
+import com.ecommerce.userservice.entity.JwtAccountDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,4 +26,11 @@ public class SecurityUtil {
         return accountName;
     }
     
+    public static String getCurrentAccount() {
+        var principal = (JwtAccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (CommonUtil.isNullOrEmpty(principal)) {
+            return null;
+        }
+        return principal.getUsername();
+    }
 }

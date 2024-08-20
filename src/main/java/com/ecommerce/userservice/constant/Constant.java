@@ -2,6 +2,7 @@ package com.ecommerce.userservice.constant;
 
 public class Constant {
     
+    
     private Constant() {
     }
     
@@ -20,6 +21,10 @@ public class Constant {
     
     public static final String OR = " OR ";
     
+    public static final String PROFILE_STAGING = "staging";
     
+    public static final String PROFILE_PRODUCTION = "prod";
+    
+    public static final String KEY_RSA_ALGORITHM = "RSA";
     
 }

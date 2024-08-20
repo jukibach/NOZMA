@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.util;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,5 +19,13 @@ public class DateUtil {
     
     public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
         return formatYearMonthHourMinuteSecond().format(localDateTime);
+    }
+    
+    public static LocalDate getCurrentDate() {
+        return LocalDate.now();
+    }
+    
+    public static LocalDate plusDay(LocalDate fromDate, int days) {
+        return LocalDate.from(fromDate).plusDays(days);
     }
 }

@@ -2,7 +2,10 @@ package com.ecommerce.userservice.util;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.ObjectUtils;
+
+import java.util.Objects;
 
 public class CommonUtil {
     private CommonUtil() {
@@ -32,5 +35,27 @@ public class CommonUtil {
             return entity.name();
         }
         return " ";
+    }
+    
+    public static String combineString(String... objects) {
+        if (isNullOrEmpty(objects)) {
+            throw new IllegalArgumentException();
+        }
+        
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        for (Object str : objects) {
+            if (isNonNullOrNonEmpty(str)) {
+                stringBuilder.append(str);
+            }
+        }
+        
+        return stringBuilder.toString();
+    }
+    
+    public static String retrieveToken(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (CommonUtil.isNullOrEmpty(authHeader)) return null;
+        return authHeader.replace("Bearer ", "");
     }
 }

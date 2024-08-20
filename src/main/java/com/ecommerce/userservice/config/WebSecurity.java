@@ -1,10 +1,14 @@
 package com.ecommerce.userservice.config;
 
+import com.ecommerce.userservice.service.TokenService;
+import com.ecommerce.userservice.service.impl.CustomUserDetailServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,8 +29,6 @@ import java.util.Locale;
 @Configuration
 @EnableWebSecurity
 public class WebSecurity implements WebMvcConfigurer {
-    private final JwtRequestFilter jwtRequestFilter;
-    
     /*
     Stores Locale in Session: SessionLocaleResolver stores the user's locale preference in the HTTP session.
     This means that once a user selects a locale, it remains consistent across their session until it is changed.
@@ -43,11 +45,6 @@ public class WebSecurity implements WebMvcConfigurer {
         LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
         localeChangeInterceptor.setParamName("lang"); // URL parameter to change locale
         return localeChangeInterceptor;
-    }
-    
-    @Autowired
-    public WebSecurity(@Lazy JwtRequestFilter jwtRequestFilter) {
-        this.jwtRequestFilter = jwtRequestFilter;
     }
     
     @Override
@@ -67,14 +64,31 @@ public class WebSecurity implements WebMvcConfigurer {
     }
     
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public DaoAuthenticationProvider authenticationProvider(CustomUserDetailServiceImpl customUserDetailServiceImpl) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(customUserDetailServiceImpl);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+    
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                            CustomUserDetailServiceImpl customUserDetailServiceImpl,
+                                            ObjectMapper objectMapper,
+                                            TokenService tokenService
+    ) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeHttpRequest ->
                         authorizeHttpRequest
-                                .requestMatchers("/api/auth/login", "/api/auth/register/*").permitAll()
+                                .requestMatchers(
+                                        "/api/auth/reissue-password",
+                                        "/api/auth/login",
+                                        "/api/auth/register/*").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider(customUserDetailServiceImpl))
+                .addFilterBefore(new JwtRequestFilter(tokenService, customUserDetailServiceImpl, objectMapper),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

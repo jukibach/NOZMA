@@ -39,8 +39,6 @@ public class UserServiceApplication {
                     environment.getProperty("server.port"), "[N/A]", environment.getProperty("server.port"));
             log.error("Error when retrieving external IP: ", exception);
         }
-        
-        SpringApplication.run(UserServiceApplication.class, args);
     }
     
 //    @EventListener(ApplicationReadyEvent.class)

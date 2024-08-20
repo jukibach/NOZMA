@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RolePrivilegeRepository extends JpaRepository<RolePrivilege, RolePrivilege.RolePrivilegeId> {
+public interface RolePrivilegeRepository extends JpaRepository<RolePrivilege, Long> {
     
     @Query("""
             SELECT p.name
             FROM RolePrivileges rp
             INNER JOIN Privileges p
-            ON rp.id.roleId = p.id
-            WHERE rp.id.roleId IN :roleIds
+            ON rp.role.id = p.id
+            WHERE rp.role.id IN :roleIds
             GROUP BY p.name
             """)
     List<String> findPrivilegeNamesByRoleIds(List<Integer> roleIds);
@@ -24,8 +24,8 @@ public interface RolePrivilegeRepository extends JpaRepository<RolePrivilege, Ro
             SELECT p.name
             FROM RolePrivileges rp
             INNER JOIN Privileges p
-            ON rp.id.roleId = p.id
-            WHERE rp.id.roleId = :roleId
+            ON rp.role.id = p.id
+            WHERE rp.role.id = :roleId
             GROUP BY p.name
             """)
     List<String> findPrivilegeNamesByRoleId(Integer roleId);

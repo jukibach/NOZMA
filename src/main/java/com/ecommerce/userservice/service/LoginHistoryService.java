@@ -4,7 +4,9 @@ import com.ecommerce.userservice.dto.request.LoginRequest;
 import com.ecommerce.userservice.entity.Account;
 
 public interface LoginHistoryService {
-    void saveFailedLogin(LoginRequest request, Account account, String failureReason);
+    void resetFailedAttempts(String accountName);
     
-    void saveSuccessfulLogin(LoginRequest loginRequest, Account account);
+    boolean lockWhenMultipleFailedAttempts(LoginRequest loginRequest, Account account);
+    
+    void unlockWhenExpired(Account account);
 }

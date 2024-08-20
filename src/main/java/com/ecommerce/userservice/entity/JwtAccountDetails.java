@@ -20,7 +20,7 @@ public class JwtAccountDetails implements UserDetails {
     
     private Account account;
     private User user;
-    private List<UserRole> userRoles;
+    private List<AccountRole> accountRoles;
     private List<RolePrivilege> privileges;
     
     @Override
@@ -28,11 +28,11 @@ public class JwtAccountDetails implements UserDetails {
         return Stream.concat(getUserRoles().stream(), getPrivileges().stream()).map(SimpleGrantedAuthority::new).toList();
     }
     
-    private List<String> getUserRoles() {
-        if (CommonUtil.isNullOrEmpty(userRoles)) {
+    public List<String> getUserRoles() {
+        if (CommonUtil.isNullOrEmpty(accountRoles)) {
             return List.of();
         }
-        return userRoles.stream().map(UserRole::getRole).map(Role::getName).distinct().toList();
+        return accountRoles.stream().map(AccountRole::getRole).map(Role::getName).distinct().toList();
     }
     
     @Override

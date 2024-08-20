@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS s_account.t_users
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20) NOT NULL DEFAULT 'system'
+    created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    updated_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM'
 
 );
 -- Indexes for performance optimization with High Cardinality
@@ -25,17 +25,21 @@ CREATE INDEX idx_t_users_phone_number ON s_account.t_users (phone_number);
 --- Account table ---
 CREATE TABLE IF NOT EXISTS s_account.t_accounts
 (
-    id           BIGSERIAL PRIMARY KEY,
-    account_name VARCHAR(20)  NOT NULL UNIQUE,
-    password     VARCHAR(100) NOT NULL,
-    email        VARCHAR(200) NOT NULL UNIQUE,
-    status       VARCHAR(12)  NOT NULL DEFAULT 'ACTIVE',
-    is_locked    BOOLEAN      NOT NULL DEFAULT FALSE,
-    user_id      BIGSERIAL    NOT NULL,
-    created_date TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_date TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20)  NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20)  NOT NULL DEFAULT 'system'
+    id                    BIGSERIAL PRIMARY KEY,
+    account_name          VARCHAR(20)  NOT NULL UNIQUE,
+    password              VARCHAR(100) NOT NULL,
+    email                 VARCHAR(200) NOT NULL UNIQUE,
+    status                VARCHAR(12)  NOT NULL DEFAULT 'ACTIVE',
+    is_locked             BOOLEAN      NOT NULL DEFAULT FALSE,
+    user_id               BIGSERIAL    NOT NULL,
+    last_locked           TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    from_date             TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    to_date               TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_password_generated BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_date          TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date          TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by            VARCHAR(20)  NOT NULL DEFAULT 'SYSTEM',
+    updated_by            VARCHAR(20)  NOT NULL DEFAULT 'SYSTEM'
 );
 -- Indexes for performance optimization with High Cardinality
 CREATE INDEX idx_t_accounts_id ON s_account.t_accounts (id);

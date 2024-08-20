@@ -35,7 +35,7 @@ public class Role extends BaseDomain {
     private String description;
     
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    private List<UserRole> userRoles;
+    private List<AccountRole> accountRoles;
     
     @OneToMany(mappedBy = "role")
     private List<RolePrivilege> rolePrivileges;

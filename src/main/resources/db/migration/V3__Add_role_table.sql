@@ -7,8 +7,8 @@ CREATE TABLE s_account.m_roles
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20) NOT NULL DEFAULT 'system'
+    created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    updated_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM'
 );
 
 CREATE INDEX idx_m_roles_id ON s_account.m_roles (id);
@@ -29,8 +29,8 @@ CREATE TABLE s_account.m_privileges
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20) NOT NULL DEFAULT 'system'
+    created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    updated_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM'
 );
 
 CREATE INDEX idx_m_privileges_id ON s_account.m_privileges (id);
@@ -43,15 +43,15 @@ VALUES ('GET_USERS'),
 --- Role-Privileges table ---
 CREATE TABLE s_account.m_role_privileges
 (
+    id           BIGSERIAL PRIMARY KEY,
     role_id      INT         NOT NULL,
     privilege_id INT         NOT NULL,
     description  VARCHAR(20),
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    PRIMARY KEY (role_id, privilege_id)
+    created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    updated_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM'
 );
 
 CREATE INDEX idx_rp_role_id ON s_account.m_role_privileges (role_id);
@@ -69,14 +69,14 @@ VALUES (1, 1), -- ROLE_ADMIN has GET_USERS privilege
 --- User-Roles table ---
 CREATE TABLE s_account.t_account_roles
 (
+    id           SERIAL PRIMARY KEY,
     account_id   BIGINT      NOT NULL,
     role_id      INT         NOT NULL,
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    updated_by   VARCHAR(20) NOT NULL DEFAULT 'system',
-    PRIMARY KEY (account_id, role_id)
+    created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    updated_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM'
 );
 
 CREATE INDEX idx_st_account_id ON s_account.t_account_roles (account_id);
