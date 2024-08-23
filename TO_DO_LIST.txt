@@ -1,0 +1,7 @@
+TO-DO:
+- Edit permissions
+- Delete permissions
+- Get user detail
+- Delete user
+- Update user
+- Create master data

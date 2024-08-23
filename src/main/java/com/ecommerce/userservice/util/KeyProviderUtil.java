@@ -1,9 +1,9 @@
-package com.ecommerce.userservice.config;
+package com.ecommerce.userservice.util;
 
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.ecommerce.userservice.config.ApplicationProperties;
 import com.ecommerce.userservice.constant.Constant;
-import com.ecommerce.userservice.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -72,11 +72,11 @@ public class KeyProviderUtil {
                 applicationProperties.getKeyLocalPath(), applicationProperties.getJwtSignPublicKey()));
     }
     
-    public String generate(
-            JWTCreator.Builder jwt) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public String generate(JWTCreator.Builder jwt)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (List.of(Constant.PROFILE_STAGING, Constant.PROFILE_PRODUCTION)
                 .contains(applicationProperties.getActiveProfile())) {
-
+            
             Algorithm algorithm = Algorithm.RSA256(null, null);
             String data = jwt.sign(algorithm);
             String[] parts = data.split("\\.");

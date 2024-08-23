@@ -5,18 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AccountResponse {
+@FieldNameConstants
+public class AccountDetailResponse {
+    private Long accountId;
     private String accountName;
     private String email;
-    private boolean isLocked;
+    private String firstName;
+    private String lastName;
     private String creationTime;
     private String lastSignIn;
-    private Integer groups;
-    private String passwordAge;
+    private String status;
+    private boolean isLocked;
+    
 }

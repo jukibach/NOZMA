@@ -1,6 +1,5 @@
-package com.ecommerce.userservice.config;
+package com.ecommerce.userservice.util;
 
-import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.ecommerce.userservice.constant.Constant;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.ResourceUtils;

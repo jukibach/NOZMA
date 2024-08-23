@@ -29,5 +29,4 @@ public class LoginRequest {
     private String deviceOS;
     private String browserName;
     private String browserVersion;
-    private String failureReason;
 }

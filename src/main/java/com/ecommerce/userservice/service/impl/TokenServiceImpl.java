@@ -5,25 +5,21 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.ecommerce.userservice.cache.CacheStore;
 import com.ecommerce.userservice.config.ApplicationProperties;
-import com.ecommerce.userservice.config.KeyProviderUtil;
-import com.ecommerce.userservice.constant.Constant;
 import com.ecommerce.userservice.entity.JwtAccountDetails;
 import com.ecommerce.userservice.entity.TokenDetail;
 import com.ecommerce.userservice.enums.TokenType;
 import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.service.TokenService;
 import com.ecommerce.userservice.util.CommonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ecommerce.userservice.util.KeyProviderUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 

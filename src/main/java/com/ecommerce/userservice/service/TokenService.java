@@ -4,7 +4,6 @@ import com.ecommerce.userservice.entity.JwtAccountDetails;
 import com.ecommerce.userservice.entity.TokenDetail;
 import com.ecommerce.userservice.enums.TokenType;
 import com.ecommerce.userservice.exception.BusinessException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

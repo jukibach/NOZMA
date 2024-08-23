@@ -5,6 +5,7 @@ import com.ecommerce.userservice.util.CommonUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,10 +19,10 @@ import java.util.stream.Stream;
 @Data
 public class JwtAccountDetails implements UserDetails {
     
-    private Account account;
-    private User user;
-    private List<AccountRole> accountRoles;
-    private List<RolePrivilege> privileges;
+    private transient Account account;
+    private transient User user;
+    private List<String> roles;
+    private List<String> privileges;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -29,10 +30,7 @@ public class JwtAccountDetails implements UserDetails {
     }
     
     public List<String> getUserRoles() {
-        if (CommonUtil.isNullOrEmpty(accountRoles)) {
-            return List.of();
-        }
-        return accountRoles.stream().map(AccountRole::getRole).map(Role::getName).distinct().toList();
+        return roles;
     }
     
     @Override
@@ -42,7 +40,15 @@ public class JwtAccountDetails implements UserDetails {
     
     @Override
     public String getUsername() {
+        return null;
+    }
+    
+    public String getAccountName() {
         return account.getAccountName();
+    }
+    
+    public Long getAccountId() {
+        return account.getId();
     }
     
     @Override
@@ -59,6 +65,10 @@ public class JwtAccountDetails implements UserDetails {
         if (CommonUtil.isNullOrEmpty(privileges)) {
             return List.of();
         }
-        return privileges.stream().map(RolePrivilege::getPrivilege).map(Privilege::getName).distinct().toList();
+        return privileges.stream().distinct().toList();
+    }
+    
+    public String getRole() {
+        return roles.stream().findFirst().orElse(Strings.EMPTY);
     }
 }

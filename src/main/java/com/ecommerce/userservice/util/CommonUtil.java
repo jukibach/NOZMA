@@ -3,9 +3,8 @@ package com.ecommerce.userservice.util;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.util.ObjectUtils;
-
-import java.util.Objects;
 
 public class CommonUtil {
     private CommonUtil() {
@@ -19,14 +18,20 @@ public class CommonUtil {
         return !ObjectUtils.isEmpty(object);
     }
     
-    public static String[] getTableNameAndSchema(Class<?> clazz) {
+    public static String getTableName(Class<?> clazz) {
         if (clazz.isAnnotationPresent(Table.class)) {
             Table table = clazz.getAnnotation(Table.class);
-            String tableName = table.name();
-            String schemaName = table.schema();
-            return new String[]{schemaName, tableName};
+            return table.name();
         }
-        return new String[0];
+        return Strings.EMPTY;
+    }
+    
+    public static String getSchemaName(Class<?> clazz) {
+        if (clazz.isAnnotationPresent(Table.class)) {
+            Table table = clazz.getAnnotation(Table.class);
+            return table.schema();
+        }
+        return Strings.EMPTY;
     }
     
     public static String getEntityName(Class<?> clazz) {

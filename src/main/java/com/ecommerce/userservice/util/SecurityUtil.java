@@ -21,16 +21,27 @@ public class SecurityUtil {
             else if (authentication.getPrincipal() instanceof String principal) {
                 accountName = principal;
             }
+            else if (authentication.getPrincipal() instanceof JwtAccountDetails jwtAccountDetails) {
+                accountName = jwtAccountDetails.getAccount().getAccountName();
+            }
         }
         
         return accountName;
     }
     
-    public static String getCurrentAccount() {
+    public static Long getCurrentAccountId() {
         var principal = (JwtAccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (CommonUtil.isNullOrEmpty(principal)) {
             return null;
         }
-        return principal.getUsername();
+        return principal.getAccountId();
+    }
+    
+    public static String getCurrentRole() {
+        var principal = (JwtAccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (CommonUtil.isNullOrEmpty(principal)) {
+            return null;
+        }
+        return principal.getRole();
     }
 }

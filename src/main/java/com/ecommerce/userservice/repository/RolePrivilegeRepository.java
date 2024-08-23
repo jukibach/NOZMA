@@ -11,22 +11,10 @@ import java.util.List;
 public interface RolePrivilegeRepository extends JpaRepository<RolePrivilege, Long> {
     
     @Query("""
-            SELECT p.name
+            SELECT rp.privilegeName
             FROM RolePrivileges rp
-            INNER JOIN Privileges p
-            ON rp.role.id = p.id
-            WHERE rp.role.id IN :roleIds
-            GROUP BY p.name
+            WHERE rp.roleId IN :roleIds
+            GROUP BY rp.privilegeName
             """)
     List<String> findPrivilegeNamesByRoleIds(List<Integer> roleIds);
-    
-    @Query("""
-            SELECT p.name
-            FROM RolePrivileges rp
-            INNER JOIN Privileges p
-            ON rp.role.id = p.id
-            WHERE rp.role.id = :roleId
-            GROUP BY p.name
-            """)
-    List<String> findPrivilegeNamesByRoleId(Integer roleId);
 }

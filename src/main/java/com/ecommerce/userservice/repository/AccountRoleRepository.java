@@ -11,11 +11,9 @@ import java.util.List;
 public interface AccountRoleRepository extends JpaRepository<AccountRole, Long> {
     
     @Query("""
-            SELECT ar.role.id, r.name
+            SELECT ar.roleId, ar.roleName
             FROM AccountRoles ar
-            INNER JOIN Roles r
-            ON ar.role.id = r.id
-            WHERE ar.account.id = :accountId
+            WHERE ar.accountId = :accountId
             """)
     List<Object[]> findRoleIdAndNameByAccountId(Long accountId);
 }

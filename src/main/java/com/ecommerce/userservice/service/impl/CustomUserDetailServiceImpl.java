@@ -1,10 +1,11 @@
 package com.ecommerce.userservice.service.impl;
 
-import com.ecommerce.userservice.entity.AccountRole;
 import com.ecommerce.userservice.entity.JwtAccountDetails;
-import com.ecommerce.userservice.entity.Role;
-import com.ecommerce.userservice.entity.RolePrivilege;
+import com.ecommerce.userservice.enums.StatusAndMessage;
+import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.repository.AccountRepository;
+import com.ecommerce.userservice.repository.AccountRoleRepository;
+import com.ecommerce.userservice.repository.RolePrivilegeRepository;
 import com.ecommerce.userservice.repository.UserRepository;
 import com.ecommerce.userservice.service.LoginHistoryService;
 import com.ecommerce.userservice.util.CommonUtil;
@@ -12,10 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,7 +25,9 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
     
     private final UserRepository userRepository;
     
-    private final PasswordEncoder passwordEncoder;
+    private final AccountRoleRepository accountRoleRepository;
+    
+    private final RolePrivilegeRepository rolePrivilegeRepository;
     
     private final LoginHistoryService loginHistoryService;
     
@@ -35,23 +36,25 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
         var account = accountRepository.findByAccountName(accountName);
         
         if (CommonUtil.isNullOrEmpty(account)) {
-            throw new UsernameNotFoundException("Account " + accountName +" does not exist!");
+            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
         }
         if (account.isLocked()) {
             loginHistoryService.unlockWhenExpired(account);
         }
         
         var user = userRepository.findById(account.getUserId());
-        
-        List<AccountRole> accountRoles = account.getAccountRoles();
-        
-        List<RolePrivilege> privileges = new ArrayList<>();
-        if (CommonUtil.isNonNullOrNonEmpty(accountRoles)) {
-            privileges = accountRoles.stream()
-                    .map(AccountRole::getRole)
-                    .map(Role::getRolePrivileges)
-                    .flatMap(List::stream).toList();
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User does not exist!");
         }
-        return new JwtAccountDetails(account, user.get(), accountRoles, privileges);
+        
+        // get roles
+        List<Object[]> roles = accountRoleRepository.findRoleIdAndNameByAccountId(account.getId());
+        List<String> roleNames = roles.stream().map(object -> (String) object[1]).toList();
+        List<Integer> roleIds = roles.stream().map(object -> (Integer) object[0]).toList();
+        
+        // get privileges
+        List<String> privileges = rolePrivilegeRepository.findPrivilegeNamesByRoleIds(roleIds);
+        
+        return new JwtAccountDetails(account, user.get(), roleNames, privileges);
     }
 }

@@ -2,11 +2,10 @@ package com.ecommerce.userservice.controller;
 
 import com.ecommerce.userservice.dto.request.ChangePasswordPayload;
 import com.ecommerce.userservice.dto.request.LoginRequest;
-import com.ecommerce.userservice.dto.request.PagePayload;
 import com.ecommerce.userservice.dto.request.ReissueTokenPayload;
 import com.ecommerce.userservice.dto.request.UserRegistrationRequest;
 import com.ecommerce.userservice.dto.response.ApiResponse;
-import com.ecommerce.userservice.service.AccountService;
+import com.ecommerce.userservice.service.AuthenticationService;
 import com.ecommerce.userservice.util.ResponseEntityUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -25,37 +24,41 @@ import java.security.spec.InvalidKeySpecException;
 @AllArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthenticationController {
-    private final AccountService accountService;
+    private final AuthenticationService authenticationService;
     
     @PostMapping(value = "/login")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        return ResponseEntityUtil.createSuccessResponse(accountService.login(request));
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        return ResponseEntityUtil.createSuccessResponse(authenticationService.login(request));
     }
     
     @PostMapping(value = "/register/users") // Based on AWS
-    public ResponseEntity<ApiResponse> registerNewUserAccount(@RequestBody UserRegistrationRequest request) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        return ResponseEntityUtil.createSuccessResponse(accountService.registerNewAccount(request));
-    }
-    
-    @PostMapping(value = "/accounts/listAccount")
-    public ResponseEntity<ApiResponse> getAccountList(@RequestBody PagePayload request) {
-        return ResponseEntityUtil.createSuccessResponse(accountService.getAccountList(request));
+    public ResponseEntity<ApiResponse> registerNewUserAccount(@RequestBody UserRegistrationRequest request)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        return ResponseEntityUtil.createSuccessResponse(authenticationService.registerNewAccount(request));
     }
     
     @PostMapping(value = "/reissue-token")
-    public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestBody ReissueTokenPayload payload) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        return ResponseEntityUtil.createSuccessResponse(accountService.reissueToken(payload));
+    public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestBody ReissueTokenPayload payload)
+            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+        return ResponseEntityUtil.createSuccessResponse(authenticationService.reissueToken(payload));
     }
     
     @PostMapping(value = "/change-password")
     public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody ChangePasswordPayload payload) {
-        accountService.changePassword(payload);
+        authenticationService.changePassword(payload);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
     
     @PostMapping(value = "/reissue-password")
     public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestParam String accountName) {
-        accountService.reissuePassword(accountName);
+        authenticationService.reissuePassword(accountName);
+        return ResponseEntityUtil.createSuccessResponseWithoutData();
+    }
+    
+    @PostMapping(value = "/logout")
+    public ResponseEntity<ApiResponse> logout(@Valid @RequestParam String profileToken) {
+        authenticationService.logout(profileToken);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
 }
