@@ -4,4 +4,81 @@ TO-DO:
 - Get user detail
 - Delete user
 - Update user
-- Create master data
+- Create master data:
+    - Exercises:
+        + Body Part
+        + Category
+        + Description
+    - Metrics:
+        + Weight Unit (lbs/kg)
+        + Size Unit (cm/inch)
+        + Distance Unit (miles/km)
+    - Nutrition
+    - Rest Time
+    - RP Metric
+
+- Create tables:
+     - Exercises:
+        + Body Part
+        + Category
+        + Previous
+        + Metrics
+        + Weight
+        + Equipment
+        + Volume
+        + Sets
+        + Note
+        + Add warm up sets
+    - Custom exercise
+    - Sets
+        + Reps
+        + Weight:
+            +KG
+            +LBS
+
+    - Volumes: Exercises, Reps
+
+    - Sessions: Date, Volume, Exercise, RPE, 1RM
+    - Template
+    - Folder
+    - Track progress: Weight, Body Fat, Calories Intake
+
+Relationships
+    - User - Session: 1 - M
+    - Session - Exercise: M - M
+    - Exercises - Sets: 1 - M
+    - Sets - Reps: 1 - M
+    - Exercises - Major muscle: M - 1
+    - Exercises - Category: M - M
+    - Exercises - Equipments: M - M
+    - Exercises - Minor muscle: M - M
+    - User - Custom Exercises: 1 - M
+    -
+
+s_workout.m_major_muscles
+s_workout.m_minor_muscles
+s_workout.m_categories
+s_workout.m_equipments
+
+s_workout.m_exercises
+
+s_workout.m_exercises_minor_muscles
+s_workout.m_exercises_categories
+
+s_workout.m_exercises_Movement_Patterns
+
+s_workout.m_exercises_equipments
+
+
+=CONCAT("INSERT INTO s_workout.m_exercises(name, mechanics, major_muscle, body_region, laterality, is_weight, is_cardio,
+ is_plyo)
+ VALUES ('", A2, "', '", B2,"', '", C2,"', '", D2,"', '", F2,"', '", J2,"', '", K2,"', '", L2,"');")
+"INSERT INTO s_workout.m_exercises(name, mechanics, major_muscle, body_region, laterality)
+ VALUES ('Arnold Press', 'Compound', 'Upper Body', 'Shoulders', 'Bilateral');"
+
+=CONCAT("INSERT INTO s_workout.m_movement_patterns(name)
+ VALUES ('", B2, "');")
+
+s_workout.t_exercises_record
+
+s_workout.t_user_exercises

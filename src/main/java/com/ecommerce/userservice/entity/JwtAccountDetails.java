@@ -2,14 +2,15 @@ package com.ecommerce.userservice.entity;
 
 import com.ecommerce.userservice.enums.RecordStatus;
 import com.ecommerce.userservice.util.CommonUtil;
+import com.ecommerce.userservice.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,16 +22,16 @@ public class JwtAccountDetails implements UserDetails {
     
     private transient Account account;
     private transient User user;
-    private List<String> roles;
+    private String role;
     private List<String> privileges;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Stream.concat(getUserRoles().stream(), getPrivileges().stream()).map(SimpleGrantedAuthority::new).toList();
+        return Stream.concat(Stream.of(getUserRole()), getPrivileges().stream()).map(SimpleGrantedAuthority::new).toList();
     }
     
-    public List<String> getUserRoles() {
-        return roles;
+    public String getUserRole() {
+        return role;
     }
     
     @Override
@@ -45,6 +46,14 @@ public class JwtAccountDetails implements UserDetails {
     
     public String getAccountName() {
         return account.getAccountName();
+    }
+    
+    @Override
+    public boolean isCredentialsNonExpired() {
+        if (CommonUtil.isNullOrEmpty(account.getToDate())) {
+            return false;
+        }
+        return account.getToDate().isAfter(DateUtil.getCurrentDate()) || getPasswordDayLeft() == 0;
     }
     
     public Long getAccountId() {
@@ -68,7 +77,11 @@ public class JwtAccountDetails implements UserDetails {
         return privileges.stream().distinct().toList();
     }
     
-    public String getRole() {
-        return roles.stream().findFirst().orElse(Strings.EMPTY);
+    public Long getPasswordDayLeft() {
+        if (CommonUtil.isNullOrEmpty(account.getToDate())) {
+            return 0L;
+        }
+        var passwordExpiredDate = account.getToDate();
+        return DateUtil.getCurrentDate().until(passwordExpiredDate, ChronoUnit.DAYS) + 1;
     }
 }

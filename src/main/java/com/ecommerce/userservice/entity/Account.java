@@ -36,6 +36,10 @@ public class Account extends BaseDomain {
     
     private Long userId;
     
+    private int roleId;
+
+    private String roleName;
+    
     private boolean isLocked;
     
     private LocalDateTime lastLocked;

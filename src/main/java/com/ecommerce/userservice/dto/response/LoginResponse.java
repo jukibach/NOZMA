@@ -7,7 +7,7 @@ public record LoginResponse(
         String email,
         String profileToken,
         String refreshToken,
-        List<String> roles,
+        String role,
         List<String> privileges,
         String loginTimestamp
 ) {

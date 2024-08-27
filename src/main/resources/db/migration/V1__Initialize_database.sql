@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS s_account.t_users
     middle_name  VARCHAR(20),
     last_name    VARCHAR(20) NOT NULL,
     phone_number VARCHAR(11) NOT NULL UNIQUE,
-    age          INT         NOT NULL,
     status       VARCHAR(12) NOT NULL DEFAULT 'ACTIVE',
+    birthdate    VARCHAR(10),
     created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by   VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
@@ -31,10 +31,12 @@ CREATE TABLE IF NOT EXISTS s_account.t_accounts
     email                 VARCHAR(200) NOT NULL UNIQUE,
     status                VARCHAR(12)  NOT NULL DEFAULT 'ACTIVE',
     is_locked             BOOLEAN      NOT NULL DEFAULT FALSE,
-    user_id               BIGSERIAL    NOT NULL,
-    last_locked           TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    from_date             TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    to_date               TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id               BIGINT       NOT NULL,
+    role_id               INT          NOT NULL,
+    role_name             VARCHAR(25)  NOT NULL,
+    last_locked           TIMESTAMPTZ,
+    from_date             TIMESTAMPTZ,
+    to_date               TIMESTAMPTZ,
     is_password_generated BOOLEAN      NOT NULL DEFAULT FALSE,
     created_date          TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date          TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,14 +49,7 @@ CREATE INDEX idx_t_accounts_account_name ON s_account.t_accounts (account_name);
 CREATE INDEX idx_t_accounts_email ON s_account.t_accounts (email);
 
 -- Example data for t_users table
-INSERT INTO s_account.t_users (first_name, middle_name, last_name, phone_number, age)
-VALUES ('John', 'Robert', 'Doe', '1234567890', 30),
-       ('Jane', NULL, 'Smith', '9876543210', 28),
-       ('Michael', 'James', 'Williams', '5551234567', 35);
-
--- Example data for t_accounts table
-INSERT INTO s_account.t_accounts (account_name, password, email, user_id)
-VALUES ('john_doe', '$10$JVgrpiZ/QcSwxLqfLYHyq.lqb4SoTw3J9gPQEy5gpg6UD/bI7xXKa', 'john.doe@example.com', 1),
-       ('jane_smith', '$10$JVgrpiZ/QcSwxLqfLYHyq.lqb4SoTw3J9gPQEy5gpg6UD/bI7xXKa', 'jane.smith@example.com', 2),
-       ('michael_williams', '$10$JVgrpiZ/QcSwxLqfLYHyq.lqb4SoTw3J9gPQEy5gpg6UD/bI7xXKa', 'michael.williams@example.com',
-        3);
+INSERT INTO s_account.t_users (first_name, middle_name, last_name, phone_number, birthdate)
+VALUES ('John', 'Robert', 'Doe', '1234567890', '01-01-2000'),
+       ('Jane', NULL, 'Smith', '9876543210', '01-01-2000'),
+       ('Michael', 'James', 'Williams', '5551234567', '01-01-2000');

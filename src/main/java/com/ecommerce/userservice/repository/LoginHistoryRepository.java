@@ -20,8 +20,8 @@ public interface LoginHistoryRepository extends JpaRepository<LoginHistory, Long
     
     @Modifying
     @Query("""
-            UPDATE loginHistories lh SET lh.status = "INACTIVE" WHERE lh.accountName = :accountName
+            UPDATE loginHistories lh SET lh.status = "INACTIVE" WHERE lh.accountId = :accountId
             AND lh.status = "ACTIVE"
             """)
-    void deactivateByAccountName(String accountName);
+    void deactivateByAccountId(long accountId);
 }

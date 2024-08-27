@@ -9,7 +9,6 @@ import com.ecommerce.userservice.dto.response.LoginResponse;
 import com.ecommerce.userservice.dto.response.ReissueTokenResponse;
 import com.ecommerce.userservice.dto.response.UserRegistrationResponse;
 import com.ecommerce.userservice.entity.Account;
-import com.ecommerce.userservice.entity.AccountRole;
 import com.ecommerce.userservice.entity.JwtAccountDetails;
 import com.ecommerce.userservice.entity.PasswordHistory;
 import com.ecommerce.userservice.entity.TokenDetail;
@@ -20,7 +19,6 @@ import com.ecommerce.userservice.enums.TokenType;
 import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.mapper.AccountMapper;
 import com.ecommerce.userservice.repository.AccountRepository;
-import com.ecommerce.userservice.repository.AccountRoleRepository;
 import com.ecommerce.userservice.repository.PasswordHistoryRepository;
 import com.ecommerce.userservice.repository.RolePrivilegeRepository;
 import com.ecommerce.userservice.service.AccountService;
@@ -35,6 +33,10 @@ import com.ecommerce.userservice.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,7 +49,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -58,7 +59,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RolePrivilegeRepository rolePrivilegeRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
-    private final AccountRoleRepository accountRoleRepository;
     private final LoginHistoryService loginHistoryService;
     private final PasswordEncoder passwordEncoder;
     private final AccountMapper accountMapper;
@@ -73,36 +73,47 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public LoginResponse login(LoginRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getAccountName(), request.getPassword()));
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        
-        JwtAccountDetails accountDetails = (JwtAccountDetails) authentication.getPrincipal();
-        var account = accountDetails.getAccount();
-        
-        if (CommonUtil.isNullOrEmpty(account)) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getAccountName(), request.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            JwtAccountDetails accountDetails = (JwtAccountDetails) authentication.getPrincipal();
+            var account = accountDetails.getAccount();
+            
+            loginHistoryService.resetFailedAttempts(account.getAccountName());
+            
+            var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
+            var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
+            
+            return new LoginResponse(account.getAccountName(), account.getEmail(), profileToken, refreshToken,
+                    accountDetails.getUserRole(), accountDetails.getPrivileges(), request.getLoginTimestamp());
+            
+        } catch (Exception exception) {
+            if (exception instanceof CredentialsExpiredException) {
+                log.error("Password expired");
+                throw new BusinessException(StatusAndMessage.PASSWORD_EXPIRED);
+            }
+            if (exception instanceof DisabledException) {
+                log.error("Account was deleted");
+                throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
+            }
+            
+            var account = accountRepository.findByAccountName(request.getAccountName());
+            if (CommonUtil.isNonNullOrNonEmpty(account)) {
+                if (exception instanceof BadCredentialsException) {
+                    loginHistoryService.lockWhenMultipleFailedAttempts(request, account);
+                    log.error("Password is incorrect");
+                    throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
+                }
+                if (exception instanceof LockedException) {
+                    loginHistoryService.unlockWhenExpired(account);
+                    log.error("Account is locked!");
+                    throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
+                }
+            }
+            throw exception;
         }
-        if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
-        }
-        if (account.isLocked() || loginHistoryService.lockWhenMultipleFailedAttempts(request, account)) {
-            loginHistoryService.unlockWhenExpired(account);
-            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
-        }
-        if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
-            loginHistoryService.lockWhenMultipleFailedAttempts(request, account);
-            throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
-        }
-        loginHistoryService.resetFailedAttempts(account.getAccountName());
-        
-        var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
-        var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
-        
-        return new LoginResponse(account.getAccountName(), account.getEmail(), profileToken, refreshToken,
-                accountDetails.getPrivileges(), accountDetails.getUserRoles(),
-                request.getLoginTimestamp());
     }
     
     @Override
@@ -110,10 +121,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public UserRegistrationResponse registerNewAccount(
             UserRegistrationRequest request) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (!Objects.equals(request.password(), request.confirmedPassword())) {
+            log.error("Password is incorrect");
             throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
         }
         
         if (accountRepository.existsByAccountName(request.accountName())) {
+            log.error("Account already existed");
             throw new BusinessException(StatusAndMessage.ACCOUNT_ALREADY_EXISTED);
         }
         
@@ -123,20 +136,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         
         var newUser = userService.saveNewUser(request);
         var newAccount = accountMapper.registrationRequestToAccount(request);
-        
-        newAccount.setPassword(passwordEncoder.encode(request.password()));
+        var fromDate = DateUtil.getCurrentDate();
+        var toDate = DateUtil.plusDay(fromDate, applicationProperties.getPasswordDurationInDays());
+        var encodedPassword = passwordEncoder.encode(request.password());
+        newAccount.setPassword(encodedPassword);
         newAccount.setUserId(newUser.getId());
-        newAccount.setLastLocked(LocalDateTime.now());
-        newAccount.setFromDate(LocalDate.now()); // TODO
-        newAccount.setToDate(LocalDate.now().plusDays(applicationProperties.getPasswordDurationInDays())); // TODO
+        newAccount.setFromDate(fromDate);
+        newAccount.setToDate(toDate);
+        newAccount.setRoleId(Role.USER.getId());
+        newAccount.setRoleName(Role.USER.getRoleName());
         newAccount = accountRepository.save(newAccount);
-        
-        accountRoleRepository.save(AccountRole.builder()
-                .accountId(newAccount.getId())
-                .accountName(newAccount.getAccountName())
-                .roleId(Role.USER.getId())
-                .roleName(Role.USER.getRoleName())
-                .build());
         
         var accountDetails = JwtAccountDetails.builder()
                 .account(Account.builder()
@@ -147,8 +156,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
         var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
         
-        var privilegeNames = rolePrivilegeRepository.findPrivilegeNamesByRoleIds(
-                Collections.singletonList(Role.USER.getId()));
+        var privilegeNames = rolePrivilegeRepository.findPrivilegeNamesByRoleId(Role.USER.getId());
+        
+        PasswordHistory passwordHistory = PasswordHistory.builder()
+                .password(encodedPassword)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .accountId(newAccount.getId())
+                .build();
+        passwordHistoryRepository.save(passwordHistory);
         
         // TODO:   Remember me
         //         Allow multiple login
@@ -166,10 +182,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var account = accountService.findByAccountName(accountName);
         
         if (account.isLocked()) {
-            throw new BusinessException("Account is locked");
+            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
         }
         if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException("Account is deleted");
+            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
         }
         
         var generatedPassword = passwordGeneratorUtil.generatePassword();
@@ -187,7 +203,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         TokenDetail tokenDetail = tokenService.validateToken(payload.getRefreshToken());
         if (!tokenDetail.getAccountId().equals(payload.getAccountId())) {
-            throw new BusinessException("Account name is invalid");
+            throw new BusinessException("Account is invalid");
         }
         
         var accountDetails = JwtAccountDetails.builder()
@@ -222,6 +238,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         
     }
     
+    // TODO: What if I register -> create a new history. I change password again ?
     private void updatePasswordInTheDatabase(Account account, String encryptedPassword, boolean isPasswordGenerated) {
         LocalDate fromDate = DateUtil.getCurrentDate();
         

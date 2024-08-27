@@ -1,5 +1,6 @@
 package com.ecommerce.userservice.controller;
 
+import com.ecommerce.userservice.constant.ApiURL;
 import com.ecommerce.userservice.dto.request.ChangePasswordPayload;
 import com.ecommerce.userservice.dto.request.LoginRequest;
 import com.ecommerce.userservice.dto.request.ReissueTokenPayload;
@@ -22,41 +23,42 @@ import java.security.spec.InvalidKeySpecException;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping(ApiURL.ROOT_PATH)
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     
-    @PostMapping(value = "/login")
+    @PostMapping(value = ApiURL.LOGIN)
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         return ResponseEntityUtil.createSuccessResponse(authenticationService.login(request));
     }
     
-    @PostMapping(value = "/register/users") // Based on AWS
+    @PostMapping(value = ApiURL.REGISTER_USER) // Based on AWS
     public ResponseEntity<ApiResponse> registerNewUserAccount(@RequestBody UserRegistrationRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        return ResponseEntityUtil.createSuccessResponse(authenticationService.registerNewAccount(request));
+        return ResponseEntityUtil.createSuccessResponseWithCreatedStatus(
+                authenticationService.registerNewAccount(request));
     }
     
-    @PostMapping(value = "/reissue-token")
+    @PostMapping(value = ApiURL.REISSUE_TOKEN)
     public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestBody ReissueTokenPayload payload)
             throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         return ResponseEntityUtil.createSuccessResponse(authenticationService.reissueToken(payload));
     }
     
-    @PostMapping(value = "/change-password")
+    @PostMapping(value = ApiURL.CHANGE_PASSWORD)
     public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody ChangePasswordPayload payload) {
         authenticationService.changePassword(payload);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
     
-    @PostMapping(value = "/reissue-password")
-    public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestParam String accountName) {
+    @PostMapping(value = ApiURL.REISSUE_PASSWORD)
+    public ResponseEntity<ApiResponse> reissuePassword(@Valid @RequestParam String accountName) {
         authenticationService.reissuePassword(accountName);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
     
-    @PostMapping(value = "/logout")
+    @PostMapping(value = ApiURL.LOGOUT)
     public ResponseEntity<ApiResponse> logout(@Valid @RequestParam String profileToken) {
         authenticationService.logout(profileToken);
         return ResponseEntityUtil.createSuccessResponseWithoutData();

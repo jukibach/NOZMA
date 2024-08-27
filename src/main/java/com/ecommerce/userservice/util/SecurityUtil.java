@@ -42,6 +42,6 @@ public class SecurityUtil {
         if (CommonUtil.isNullOrEmpty(principal)) {
             return null;
         }
-        return principal.getRole();
+        return principal.getUserRole();
     }
 }

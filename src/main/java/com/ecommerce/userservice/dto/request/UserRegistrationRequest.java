@@ -9,6 +9,6 @@ public record UserRegistrationRequest(
         String middleName,
         String lastName,
         String phoneNumber,
-        Integer age
+        String birthdate
 ) {
 }

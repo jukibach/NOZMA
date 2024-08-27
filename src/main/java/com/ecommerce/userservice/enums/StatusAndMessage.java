@@ -16,7 +16,13 @@ public enum StatusAndMessage implements IEnumStatusAndMessage {
     
     INCORRECT_PASSWORD(MessageId.E104),
     
-    ACCOUNT_ALREADY_EXISTED(MessageId.E105);
+    ACCOUNT_ALREADY_EXISTED(MessageId.E105),
+    
+    PASSWORD_EXPIRED(MessageId.E106),
+    
+    TOKEN_EXPIRED(MessageId.E107),
+    
+    USER_DOES_NOT_EXIST(MessageId.E108);
     
     private final String message;
 }

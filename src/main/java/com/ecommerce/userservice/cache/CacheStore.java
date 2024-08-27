@@ -20,7 +20,7 @@ public class CacheStore<K, V> {
     }
     
     public V get(K key) {
-        return cache.get(key);
+        return cache.getOrDefault(key, null);
     }
     
     public V getOrDefault(K key, V defaultValue) {

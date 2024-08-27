@@ -52,15 +52,15 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
     }
     
     @Override
-    public boolean lockWhenMultipleFailedAttempts(LoginRequest loginRequest, Account account) {
+    public void lockWhenMultipleFailedAttempts(LoginRequest loginRequest, Account account) {
         
         Integer currentFailedAttempts = getFailedAttempts(account.getAccountName());
         
         // if this is the first failed login or there has been less than 5 failed login attempts
         if (CommonUtil.isNullOrEmpty(currentFailedAttempts)
-                || currentFailedAttempts < applicationProperties.getMaxFailedAttempts()) {
+                || currentFailedAttempts < applicationProperties.getMaxFailedAttempts() - 1) {
             increaseFailedAttempts(account.getAccountName(), currentFailedAttempts);
-            return false;
+            return;
         }
         
         // Lock account
@@ -85,7 +85,6 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
                 applicationProperties.getMaxFailedAttempts());
         // Reset failed attempts
         resetFailedAttempts(account.getAccountName());
-        return true;
     }
     
     @Override

@@ -15,6 +15,10 @@ public class ResponseEntityUtil {
         return new ResponseEntity<>(ApiResponse.ok("Request was successful.", data), HttpStatus.OK);
     }
     
+    public static ResponseEntity<ApiResponse> createSuccessResponseWithCreatedStatus(Object data) {
+        return new ResponseEntity<>(ApiResponse.ok("New resource was created", data), HttpStatus.CREATED);
+    }
+    
     public static ResponseEntity<ApiResponse> createSuccessResponseWithoutData() {
         return new ResponseEntity<>(ApiResponse.ok("Request was successful.", null), HttpStatus.OK);
     }

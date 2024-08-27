@@ -6,7 +6,7 @@ import com.ecommerce.userservice.entity.Account;
 public interface LoginHistoryService {
     void resetFailedAttempts(String accountName);
     
-    boolean lockWhenMultipleFailedAttempts(LoginRequest loginRequest, Account account);
+    void lockWhenMultipleFailedAttempts(LoginRequest loginRequest, Account account);
     
     void unlockWhenExpired(Account account);
 }

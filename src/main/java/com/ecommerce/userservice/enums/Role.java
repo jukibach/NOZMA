@@ -5,9 +5,8 @@ import lombok.Getter;
 @Getter
 public enum Role {
     ADMIN("ROLE_ADMIN", 0),
-    USER("ROLE_USER", 1),
-    SELLER("ROLE_SELLER", 2),
-    CUSTOMER_SUPPORT("ROLE_CUSTOMER_SUPPORT", 3);
+    PAID_USER("ROLE_PAID_USER", 1),
+    USER("ROLE_USER", 2);
     
     private final String roleName;
     private final Integer id;

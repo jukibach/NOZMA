@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Formula;
+
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,6 +36,18 @@ public class User extends BaseDomain {
     
     private String phoneNumber;
     
+    private String birthdate;
+    
+    // 26-08 < 15-01 is false, so the birthday has already passed this year.
+    // else, minus 1 because the birthday has not passed this year.
+    @Formula("""
+            (EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(birthdate, 'DD-MM-YYYY')) -
+            CASE WHEN (TO_CHAR(CURRENT_DATE, 'MMDD') < TO_CHAR(TO_DATE(birthdate, 'DD-MM-YYYY'), 'MMDD'))
+            THEN 1
+            ELSE 0
+            END
+            )
+            """)
     private Integer age;
     
 }

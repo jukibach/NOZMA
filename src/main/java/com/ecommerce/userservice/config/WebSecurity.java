@@ -3,6 +3,7 @@ package com.ecommerce.userservice.config;
 import com.ecommerce.userservice.service.TokenService;
 import com.ecommerce.userservice.service.impl.CustomUserDetailServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,7 +74,8 @@ public class WebSecurity implements WebMvcConfigurer {
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             CustomUserDetailServiceImpl customUserDetailServiceImpl,
                                             ObjectMapper objectMapper,
-                                            TokenService tokenService
+                                            TokenService tokenService,
+                                            MessageSource messageSource
     ) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeHttpRequest ->
@@ -85,7 +87,8 @@ public class WebSecurity implements WebMvcConfigurer {
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider(customUserDetailServiceImpl))
-                .addFilterBefore(new JwtRequestFilter(tokenService, customUserDetailServiceImpl, objectMapper),
+                .addFilterBefore(new JwtRequestFilter(tokenService, customUserDetailServiceImpl, objectMapper,
+                                messageSource),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

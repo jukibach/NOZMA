@@ -13,8 +13,8 @@ public interface RolePrivilegeRepository extends JpaRepository<RolePrivilege, Lo
     @Query("""
             SELECT rp.privilegeName
             FROM RolePrivileges rp
-            WHERE rp.roleId IN :roleIds
+            WHERE rp.roleId = :roleId
             GROUP BY rp.privilegeName
             """)
-    List<String> findPrivilegeNamesByRoleIds(List<Integer> roleIds);
+    List<String> findPrivilegeNamesByRoleId(Integer roleId);
 }

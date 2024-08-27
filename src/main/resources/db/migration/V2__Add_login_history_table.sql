@@ -2,8 +2,8 @@
 CREATE TABLE s_account.t_login_histories
 (
     id                  BIGSERIAL PRIMARY KEY,
-    user_id             BIGSERIAL   NOT NULL,
-    account_id          BIGSERIAL   NOT NULL,
+    user_id             BIGINT      NOT NULL,
+    account_id          BIGINT      NOT NULL,
     account_name        VARCHAR(20) NOT NULL,
     is_login_successful BOOLEAN     NOT NULL DEFAULT TRUE,
     failure_reason      VARCHAR(100),
@@ -28,7 +28,7 @@ CREATE INDEX idx_t_login_histories_ip_address ON s_account.t_login_histories (ip
 CREATE TABLE s_account.t_password_histories
 (
     id           BIGSERIAL PRIMARY KEY,
-    account_id   BIGSERIAL    NOT NULL,
+    account_id   BIGINT       NOT NULL,
     password     VARCHAR(100) NOT NULL,
     from_date    TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     to_date      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,

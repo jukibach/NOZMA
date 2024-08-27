@@ -4,11 +4,18 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.AlgorithmMismatchException;
+import com.auth0.jwt.exceptions.InvalidClaimException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ecommerce.userservice.cache.CacheStore;
 import com.ecommerce.userservice.config.ApplicationProperties;
 import com.ecommerce.userservice.entity.JwtAccountDetails;
 import com.ecommerce.userservice.entity.TokenDetail;
+import com.ecommerce.userservice.enums.StatusAndMessage;
 import com.ecommerce.userservice.enums.TokenType;
 import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.service.TokenService;
@@ -46,7 +53,7 @@ public class TokenServiceImpl implements TokenService {
         }
         
         JWTCreator.Builder jwt = JWT.create()
-                .withSubject(jwtAccountDetails.getUsername())
+                .withSubject(jwtAccountDetails.getAccountName())
                 .withClaim("accountId", jwtAccountDetails.getAccount().getId())
                 .withIssuedAt(currentDate.getTime())
                 .withExpiresAt(expiryDate.getTime());
@@ -64,14 +71,23 @@ public class TokenServiceImpl implements TokenService {
             DecodedJWT decodedJWT = verifier.verify(token);
             
             return TokenDetail.builder()
-                    .accountId(decodedJWT.getClaim("accountName").asLong())
+                    .accountId(decodedJWT.getClaim("accountId").asLong())
                     .expiryDate(decodedJWT.getExpiresAt())
                     .issueDate(decodedJWT.getIssuedAt())
                     .accountName(decodedJWT.getSubject())
                     .build();
+        } catch (TokenExpiredException exception) {
+            throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);
+        } catch (JWTDecodeException exception) {
+            throw new JWTVerificationException("JWT is malformed");
+        } catch (SignatureVerificationException exception) {
+            throw new JWTVerificationException("Signature does not match");
+        } catch (AlgorithmMismatchException exception) {
+            throw new JWTVerificationException("Algorithm does not match");
+        } catch (InvalidClaimException exception) {
+            throw new JWTVerificationException("Invalid claim");
         } catch (Exception exception) {
-            log.error("Invalid token: ", exception);
-            throw new BusinessException("Invalid");
+            throw new JWTVerificationException(exception.getMessage());
         }
     }
     
