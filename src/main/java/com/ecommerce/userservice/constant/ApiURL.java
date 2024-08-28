@@ -2,7 +2,6 @@ package com.ecommerce.userservice.constant;
 
 public class ApiURL {
     private ApiURL() {
-    
     }
     public static final String ROOT_PATH = "/api";
     public static final String GET_ACCOUNTS = "/v1/accounts/listAccount";
@@ -13,5 +12,7 @@ public class ApiURL {
     public static final String CHANGE_PASSWORD = "/auth/change-password";
     public static final String REISSUE_PASSWORD = "/auth/reissue-password";
     public static final String LOGOUT = "/auth/logout";
+    
+    public static final String GET_EXERCISE = "/v1/exercises";
     
 }

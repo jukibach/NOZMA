@@ -16,13 +16,13 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-@Table(name = "m_categories", schema = "s_workout")
-@Entity(name = "Categories")
-public class Category extends BaseDomain {
+@Table(name = "m_exercise_columns", schema = "s_workout")
+@Entity(name = "ExerciseColumns")
+public class ExerciseColumn extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
-    private Integer columnId;
+    private String type;
 }

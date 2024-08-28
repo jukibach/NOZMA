@@ -47,9 +47,9 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
             throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
         }
         var passwordExpiredDate = account.getToDate();
-        var passwordDayLeft = CommonUtil.isNullOrEmpty(account.getToDate()) ? 0L :
+        var passwordDayLeft = CommonUtil.isNullOrEmpty(passwordExpiredDate) ? 0L :
                 DateUtil.getCurrentDate().until(passwordExpiredDate, ChronoUnit.DAYS) + 1;
-        if (account.getToDate().isAfter(DateUtil.getCurrentDate()) || passwordDayLeft == 0) {
+        if (passwordExpiredDate.isBefore(DateUtil.getCurrentDate()) || passwordDayLeft == 0) {
             throw new BusinessException(StatusAndMessage.PASSWORD_EXPIRED);
         }
         var user = userRepository.findById(account.getUserId());

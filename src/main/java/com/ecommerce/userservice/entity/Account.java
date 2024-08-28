@@ -49,6 +49,5 @@ public class Account extends BaseDomain {
     private LocalDate toDate;
     
     private boolean isPasswordGenerated;
-    
-    
+
 }

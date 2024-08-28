@@ -16,13 +16,19 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-@Table(name = "m_categories", schema = "s_workout")
-@Entity(name = "Categories")
-public class Category extends BaseDomain {
+@Table(name = "t_exercises", schema = "s_workout")
+@Entity(name = "Exercises")
+public class Exercise extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String description;
-    private Integer columnId;
+    private String majorMuscle;
+    private String mechanics;
+    private String bodyRegion;
+    private String laterality;
+    private boolean isWeight;
+    private boolean isCardio;
+    private boolean isPlyo;
 }
