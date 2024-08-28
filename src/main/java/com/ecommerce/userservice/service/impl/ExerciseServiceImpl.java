@@ -1,5 +1,7 @@
 package com.ecommerce.userservice.service.impl;
 
+import com.ecommerce.userservice.dto.request.ExercisePagePayload;
+import com.ecommerce.userservice.dto.response.ExerciseRowResponse;
 import com.ecommerce.userservice.dto.response.ExerciseTableResponse;
 import com.ecommerce.userservice.entity.Exercise;
 import com.ecommerce.userservice.entity.ExerciseEquipment;
@@ -11,6 +13,7 @@ import com.ecommerce.userservice.enums.StatusAndMessage;
 import com.ecommerce.userservice.exception.BusinessException;
 import com.ecommerce.userservice.mapper.CustomExerciseMapper;
 import com.ecommerce.userservice.mapper.ExerciseMapper;
+import com.ecommerce.userservice.mybatis.mapper.MybatisExerciseMapper;
 import com.ecommerce.userservice.repository.ExerciseColumnRepository;
 import com.ecommerce.userservice.repository.ExerciseEquipmentRepository;
 import com.ecommerce.userservice.repository.ExerciseMovementPatternRepository;
@@ -45,9 +48,10 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseEquipmentRepository exerciseEquipmentRepository;
     private final ExerciseMuscleGroupRepository exerciseMuscleGroupRepository;
     private final UserExerciseSettingRepository userExerciseSettingRepository;
+    private final MybatisExerciseMapper mybatisExerciseMapper;
     
     @Override
-    public ExerciseTableResponse getExercises() throws JsonProcessingException {
+    public ExerciseTableResponse getExercises(ExercisePagePayload exercisePagePayload) throws JsonProcessingException {
         // TODO:
         //  paging
         //  store setting (user, pageId)
@@ -59,20 +63,25 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
         var userExerciseSettings = userExerciseSettingRepository.findByStatusAndAccountIdAndCode(RecordStatus.ACTIVE,
                 SecurityUtil.getCurrentAccountId(), "exercises");
-        ObjectMapper objectMapper = new ObjectMapper();
-        
-        Map<String, Object> columnSettings = objectMapper.readValue(userExerciseSettings.getSettings(),
-                new TypeReference<>() {
+        var objectMapper = new ObjectMapper();
+        var columnSettings = objectMapper.readValue(userExerciseSettings.getSettings(),
+                new TypeReference<Map<String, Boolean>>() {
                 });
-        List<String> columnCodes = new ArrayList<>(columnSettings.keySet());
         
-        var exercises = exerciseRepository.findAllByStatusAndCreatedByIn(RecordStatus.ACTIVE,
-                Collections.singletonList("SYSTEM"));
-        var exerciseIds = exercises.stream().map(Exercise::getId).toList();
+        List<String> columnCodes = new ArrayList<>();
+        columnSettings.forEach((key, value) -> {
+            if (Boolean.TRUE.equals(value)) {
+                columnCodes.add(key);
+            }
+        });
         
+        List<String> nonListExerciseColumns = getNonListExerciseColumns(columnCodes);
+        var exercises = mybatisExerciseMapper.selectFields(nonListExerciseColumns, exercisePagePayload);
+        var exerciseIds = exercises.stream().map(ExerciseRowResponse::getId).toList();
         var columns = exerciseColumnRepository.findAllByStatusAndCodeIn(RecordStatus.ACTIVE, columnCodes);
+        
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfEquipmentName = null;
-        if (columnSettings.get("equipment").equals(true)) {
+        if (columnCodes.contains("equipment")) {
             var exerciseEquipments = exerciseEquipmentRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
                     exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
             );
@@ -82,7 +91,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
         
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfMovementPatternName = null;
-        if (columnSettings.get("exerciseType").equals(true)) {
+        if (columnCodes.contains("movementPatterns")) {
             var exerciseMovementPatterns = exerciseMovementPatternRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
                     exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
             );
@@ -93,7 +102,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
         
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfMuscleGroupName = null;
-        if (columnSettings.get("exerciseType").equals(true)) {
+        if (columnCodes.contains("muscleGroup")) {
             var exerciseMuscleGroups = exerciseMuscleGroupRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
                     exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
             );
@@ -117,5 +126,33 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .primaryColumnId(ExerciseColumnEnum.EXERCISE.ordinal() + 1)
                 .rows(exerciseConverted)
                 .build();
+    }
+    
+    private static List<String> getNonListExerciseColumns(List<String> columnCodes) {
+        List<String> nonListExerciseColumns = new ArrayList<>();
+        if (columnCodes.contains(Exercise.Fields.name)) {
+            nonListExerciseColumns.add(Exercise.Fields.name);
+        }
+        if (columnCodes.contains(Exercise.Fields.description)) {
+            nonListExerciseColumns.add(Exercise.Fields.description);
+        }
+        if (columnCodes.contains(Exercise.Fields.majorMuscle)) {
+            nonListExerciseColumns.add(Exercise.Fields.majorMuscle);
+        }
+        if (columnCodes.contains(Exercise.Fields.mechanics)) {
+            nonListExerciseColumns.add(Exercise.Fields.mechanics);
+        }
+        if (columnCodes.contains(Exercise.Fields.bodyRegion)) {
+            nonListExerciseColumns.add(Exercise.Fields.bodyRegion);
+        }
+        if (columnCodes.contains(Exercise.Fields.laterality)) {
+            nonListExerciseColumns.add(Exercise.Fields.laterality);
+        }
+        if (columnCodes.contains("exerciseType")) {
+            nonListExerciseColumns.add(Exercise.Fields.isCardio);
+            nonListExerciseColumns.add(Exercise.Fields.isPlyo);
+            nonListExerciseColumns.add(Exercise.Fields.isWeight);
+        }
+        return nonListExerciseColumns;
     }
 }

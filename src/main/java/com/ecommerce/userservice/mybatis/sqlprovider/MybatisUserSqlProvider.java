@@ -8,6 +8,8 @@ import com.ecommerce.userservice.entity.User;
 import com.ecommerce.userservice.util.CommonUtil;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -38,17 +40,15 @@ public class MybatisUserSqlProvider {
         var sql = new SQL();
         
         pagePayload.visibleColumns().forEach(field ->
-                sql.SELECT(FIELD_TO_COLUMN_MAP.get(field) + Constant.AS + field));
+                sql.SELECT("%s AS %s".formatted(ACCOUNT_DETAIL_RESPONSE.get(field), field)));
         var accountSchemaName = CommonUtil.getSchemaName(Account.class);
         var accountTableName = CommonUtil.getTableName(Account.class);
         var accountEntityName = CommonUtil.getEntityName(Account.class);
         
         // s_account.t_accounts as accounts
-        var baseTable = accountSchemaName
-                .concat(Constant.DOT)
-                .concat(accountTableName)
-                .concat(Constant.AS)
-                .concat(accountEntityName);
+        var baseTable = """
+                %s.%s AS %s
+                """.formatted(accountSchemaName, accountTableName, accountEntityName);
         
         sql.FROM(baseTable);
         
@@ -60,10 +60,23 @@ public class MybatisUserSqlProvider {
         
         // Add conditions
         if (CommonUtil.isNonNullOrNonEmpty(pagePayload.searchName())) {
-            String whereClause = FIELD_TO_COLUMN_MAP.keySet().stream()
-                    .filter(field -> pagePayload.visibleColumns().contains(field))
-                    .map(field -> field.concat(Constant.LIKE).concat(pagePayload.searchName()))
-                    .collect(Collectors.joining(Constant.OR));
+//            String whereClause = ACCOUNT_DETAIL_RESPONSE.keySet().stream()
+//                    .filter(field -> pagePayload.visibleColumns().contains(field) )
+//                    .map(field -> """
+//                            %s LIKE '%%%s%%'
+//                            """.formatted(ACCOUNT_DETAIL_RESPONSE.get(field), pagePayload.searchName()))
+//                    .collect(Collectors.joining(Constant.OR));
+//
+            List<String> conditions = new ArrayList<>();
+            ACCOUNT_DETAIL_RESPONSE.forEach((responseColumn, databaseField) -> {
+                if (pagePayload.visibleColumns().contains(responseColumn)
+                        && !responseColumn.equals(AccountDetailResponse.Fields.creationTime)) {
+                    conditions.add("""
+                            %s LIKE '%%%s%%'
+                            """.formatted(databaseField, pagePayload.searchName()));
+                }
+            });
+            String whereClause = String.join(Constant.OR, conditions);
             sql.WHERE(whereClause);
         }
         
@@ -75,7 +88,7 @@ public class MybatisUserSqlProvider {
     private String convertMapToOrderByClause(Map<String, String> fieldsMap) {
         // Build the SQL ORDER BY clause
         return fieldsMap.entrySet().stream()
-                .map(entry -> FIELD_TO_COLUMN_MAP.get(entry.getKey()) + Constant.SPACE + entry.getValue()) // Map field name to SQL column and sort order
+                .map(entry -> "%s %s".formatted(FIELD_TO_COLUMN_MAP.get(entry.getKey()), entry.getValue())) // Map field name to SQL column and sort order
                 .collect(Collectors.joining(Constant.COMMA));
     }
     
@@ -89,26 +102,21 @@ public class MybatisUserSqlProvider {
         var userEntityName = CommonUtil.getEntityName(User.class);
         
         // s_account.t_accounts as accounts
-        var baseTable = accountSchemaName
-                .concat(Constant.DOT)
-                .concat(accountTableName)
-                .concat(Constant.AS)
-                .concat(accountEntityName);
+        var baseTable = """
+                    %s.%s AS %s
+                """.formatted(accountSchemaName, accountTableName, accountEntityName);
         
-        var joinTable = accountSchemaName.concat(Constant.DOT).concat(userTableName)
-                .concat(Constant.AS).concat(userEntityName).concat(Constant.ON)
-                
-                .concat(accountEntityName).concat(Constant.DOT).concat("user_id")
-                
-                .concat(Constant.EQUAL)
-                
-                .concat(userEntityName).concat(Constant.DOT).concat("id");
+        var joinTable = """
+                %s.%s AS %s ON %s.user_id = %s.id
+                """.formatted(accountSchemaName, userTableName, userEntityName, accountEntityName, userEntityName);
         
-        ACCOUNT_DETAIL_RESPONSE.forEach((field, column) -> sql.SELECT(column + Constant.AS + field));
+        ACCOUNT_DETAIL_RESPONSE.forEach((field, column) -> sql.SELECT("%s AS %s".formatted(column, field)));
         
         sql.FROM(baseTable).JOIN(joinTable);
         
-        String whereClause = accountEntityName.concat(Constant.DOT).concat("id").concat(Constant.EQUAL).concat(String.valueOf(accountId));
+        String whereClause = """
+                %s.id = %d
+                """.formatted(accountEntityName, accountId);
         sql.WHERE(whereClause);
         
         return sql.toString();

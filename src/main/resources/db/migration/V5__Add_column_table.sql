@@ -47,7 +47,7 @@ VALUES (1, 'exercises', '
   "exerciseType": true,
   "majorMuscle": true,
   "muscleGroup": true,
-  "mechanic": true,
+  "mechanics": true,
   "bodyRegion": true,
   "laterality": true,
   "movementPatterns": true,

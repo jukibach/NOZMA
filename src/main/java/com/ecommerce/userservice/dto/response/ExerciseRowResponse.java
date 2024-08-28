@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +14,16 @@ import java.util.Map;
 @Getter
 @Setter
 public class ExerciseRowResponse {
-    private Integer id;
-    private LocalDateTime createdDate;
-    private Map<Integer, Object> cellValuesByColumnId;
+    private long id;
+    private String description;
+    private String majorMuscle;
+    private String mechanics;
+    private String bodyRegion;
+    private String laterality;
+    private boolean isWeight;
+    private boolean isCardio;
+    private boolean isPlyo;
+    private List<String> equipments;
+    private List<String> movementPatterns;
+    private List<String> muscleGroup;
 }

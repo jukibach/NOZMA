@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +19,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "t_exercises", schema = "s_workout")
 @Entity(name = "Exercises")
+@FieldNameConstants
 public class Exercise extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
