@@ -82,6 +82,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         errorResponse.put("message", ex.getMessage());
         errorResponse.put("status", HttpStatus.UNAUTHORIZED.name());
         log.error(ex.getMessage());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         // Write the custom error message to the response
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
@@ -96,6 +97,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         errorResponse.put("status", HttpStatus.UNAUTHORIZED.name());
         log.error(message);
         // Write the custom error message to the response
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
