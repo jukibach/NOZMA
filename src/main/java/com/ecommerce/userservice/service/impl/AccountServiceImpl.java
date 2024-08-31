@@ -102,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
     
     @Override
     @Transactional
-    public void deleteAccount(long accountId) {
+    public void deactivateAccount(long accountId) {
         var account = getAccountForUpdateAndDelete(accountId);
         
         // Deactivate account

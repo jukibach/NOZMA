@@ -1,4 +1,4 @@
-package com.ecommerce.userservice.dto.response;
+package com.ecommerce.userservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,14 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
-public class ExerciseRowResponse {
+public class ExerciseRow {
     private long id;
     private String name;
     private String description;
@@ -21,8 +19,7 @@ public class ExerciseRowResponse {
     private String mechanics;
     private String bodyRegion;
     private String laterality;
-    private List<String> exerciseTypes;
-    private List<String> equipments;
-    private List<String> movementPatterns;
-    private List<String> muscleGroup;
+    private boolean isWeight;
+    private boolean isCardio;
+    private boolean isPlyo;
 }

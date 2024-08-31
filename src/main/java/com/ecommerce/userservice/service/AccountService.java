@@ -16,5 +16,5 @@ public interface AccountService {
     
     void updateAccount(Long accountId, @Valid UpdateAccountPayload payload);
     
-    void deleteAccount(long accountId);
+    void deactivateAccount(long accountId);
 }

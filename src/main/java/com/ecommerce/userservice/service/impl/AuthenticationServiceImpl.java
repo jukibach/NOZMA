@@ -87,29 +87,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
             
             return new LoginResponse(account.getAccountName(), account.getEmail(), profileToken, refreshToken,
-                    accountDetails.getUserRole(), accountDetails.getPrivileges(), request.getLoginTimestamp());
+                    accountDetails.getUserRole(), accountDetails.getPrivileges());
             
         } catch (Exception exception) {
-            if (exception instanceof CredentialsExpiredException) {
-                log.error("Password expired");
-                throw new BusinessException(StatusAndMessage.PASSWORD_EXPIRED);
-            }
-            if (exception instanceof DisabledException) {
-                log.error("Account was deleted");
-                throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
-            }
-            
             var account = accountRepository.findByAccountName(request.getAccountName());
             if (CommonUtil.isNonNullOrNonEmpty(account)) {
                 if (exception instanceof BadCredentialsException) {
                     loginHistoryService.lockWhenMultipleFailedAttempts(request, account);
-                    log.error("Password is incorrect");
-                    throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
                 }
-                if (exception instanceof LockedException) {
+                else if (exception instanceof LockedException) {
                     loginHistoryService.unlockWhenExpired(account);
-                    log.error("Account is locked!");
-                    throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
                 }
             }
             throw exception;

@@ -1,8 +1,10 @@
 package com.ecommerce.userservice.config;
 
+import com.ecommerce.userservice.constant.ApiURL;
 import com.ecommerce.userservice.service.TokenService;
 import com.ecommerce.userservice.service.impl.CustomUserDetailServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -27,7 +33,11 @@ import java.util.Locale;
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class WebSecurity implements WebMvcConfigurer {
+    
+    private ApplicationProperties applicationProperties;
+    
     /*
     Stores Locale in Session: SessionLocaleResolver stores the user's locale preference in the HTTP session.
     This means that once a user selects a locale, it remains consistent across their session until it is changed.
@@ -71,19 +81,38 @@ public class WebSecurity implements WebMvcConfigurer {
     }
     
     @Bean
+    CorsConfigurationSource apiConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(applicationProperties.isCorsAllowCredentials());
+        configuration.setAllowedHeaders(applicationProperties.getCorsAllowHeaders());
+        configuration.setAllowedMethods(applicationProperties.getCorsAllowMethods());
+        configuration.setAllowedOrigins(applicationProperties.getCorsAllowOrigins());
+        configuration.setExposedHeaders(applicationProperties.getCorsAllowExposedHeaders());
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+    
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             CustomUserDetailServiceImpl customUserDetailServiceImpl,
                                             ObjectMapper objectMapper,
                                             TokenService tokenService,
                                             MessageSource messageSource
     ) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
+        return http
+                .csrf(csrf ->
+                        csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                                .ignoringRequestMatchers(ApiURL.ROOT_PATH + "/**")
+                )
+                .cors(cors -> cors.configurationSource(apiConfigurationSource()))
                 .authorizeHttpRequests(authorizeHttpRequest ->
                         authorizeHttpRequest
                                 .requestMatchers(
-                                        "/api/auth/reissue-password",
-                                        "/api/auth/login",
-                                        "/api/auth/register/*").permitAll()
+                                        ApiURL.ROOT_PATH + ApiURL.REISSUE_PASSWORD,
+                                        ApiURL.ROOT_PATH + ApiURL.REGISTER_USER,
+                                        ApiURL.ROOT_PATH + ApiURL.LOGIN
+                                ).permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider(customUserDetailServiceImpl))

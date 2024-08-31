@@ -48,8 +48,8 @@ public class AccountController {
     
     @PreAuthorize("hasAuthority('" + Privileges.DELETE_USER + "')")
     @DeleteMapping(value = ApiURL.ACCOUNT_BY_ID)
-    public ResponseEntity<ApiResponse> deleteAccount(@PathVariable(value = "id") long accountId) {
-        accountService.deleteAccount(accountId);
+    public ResponseEntity<ApiResponse> deactivateAccount(@PathVariable(value = "id") long accountId) {
+        accountService.deactivateAccount(accountId);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
 }

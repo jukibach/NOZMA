@@ -34,18 +34,23 @@ public class MybatisExerciseSqlProvider {
         var sql = new SQL();
         sql.SELECT(Exercise.Fields.id);
         exerciseColumnNames.forEach(field -> sql.SELECT("%s AS %s".formatted(FIELD_TO_COLUMN_MAP.get(field), field)));
+        
         var workoutSchemaName = CommonUtil.getSchemaName(Exercise.class);
         var exerciseTableName = CommonUtil.getTableName(Exercise.class);
         var exerciseEntityName = CommonUtil.getEntityName(Exercise.class);
         
         // s_account.t_accounts as accounts
         var baseTable = "%s.%s AS %s".formatted(workoutSchemaName, exerciseTableName, exerciseEntityName);
+//        sql.SELECT("SELECT COUNT(*) as totalRowCount FROM %s ".formatted(baseTable));
         sql.FROM(baseTable);
         
         // Add sorting
         if (CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.sortPreferences())) {
             var sortClause = convertMapToOrderByClause(exercisePagePayload.sortPreferences());
             sql.ORDER_BY(sortClause);
+        } else {
+            String orderBy = "%s ASC, %s DESC".formatted(Exercise.Fields.id, "created_date");
+            sql.ORDER_BY(orderBy);
         }
         
         sql.WHERE("%s = '%s'".formatted(BaseDomain.Fields.status, RecordStatus.ACTIVE.name()))
@@ -57,7 +62,8 @@ public class MybatisExerciseSqlProvider {
         if (CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.searchName())) {
             List<String> conditions = new ArrayList<>();
             FIELD_TO_COLUMN_MAP.forEach((responseColumn, databaseField) -> {
-                if (exerciseColumnNames.contains(responseColumn)) {
+                if (exerciseColumnNames.contains(responseColumn)
+                        && !List.of(Exercise.Fields.isPlyo, Exercise.Fields.isCardio, Exercise.Fields.isWeight).contains(responseColumn)) {
                     conditions.add("""
                             %s LIKE '%%%s%%'
                             """.formatted(databaseField, exercisePagePayload.searchName()));
@@ -67,7 +73,11 @@ public class MybatisExerciseSqlProvider {
             sql.WHERE(whereClause);
         }
         
-        sql.LIMIT(exercisePagePayload.pageSize()).OFFSET(exercisePagePayload.pageIndex());
+        sql.LIMIT(
+                CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.pageSize()) ? exercisePagePayload.pageSize() : 20
+        ).OFFSET(
+                CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.pageIndex()) ? exercisePagePayload.pageIndex() : 0
+        );
         
         return sql.toString();
     }

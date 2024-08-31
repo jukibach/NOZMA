@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface LoginHistoryRepository extends JpaRepository<LoginHistory, Long> {
     
-    @Query("""
+    @Query(value = """
             SELECT lh.id FROM loginHistories lh WHERE lh.accountName = :accountName
             AND lh.status = :status
             """)

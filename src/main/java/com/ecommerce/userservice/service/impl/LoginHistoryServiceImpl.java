@@ -4,13 +4,9 @@ import com.ecommerce.userservice.cache.CacheStore;
 import com.ecommerce.userservice.config.ApplicationProperties;
 import com.ecommerce.userservice.dto.request.LoginRequest;
 import com.ecommerce.userservice.entity.Account;
-import com.ecommerce.userservice.entity.LoginHistory;
-import com.ecommerce.userservice.enums.DeviceType;
 import com.ecommerce.userservice.repository.AccountRepository;
-import com.ecommerce.userservice.repository.LoginHistoryRepository;
 import com.ecommerce.userservice.service.LoginHistoryService;
 import com.ecommerce.userservice.util.CommonUtil;
-import com.ecommerce.userservice.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +17,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @AllArgsConstructor
 public class LoginHistoryServiceImpl implements LoginHistoryService {
-    private final LoginHistoryRepository loginHistoryRepository;
     private final AccountRepository accountRepository;
     private final CacheStore<String, Integer> loginFailedAttemptCache;
     private final ApplicationProperties applicationProperties;
@@ -68,19 +63,6 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
         account.setLastLocked(LocalDateTime.now());
         accountRepository.save(account);
         
-        var failedLogin = LoginHistory.builder()
-                .accountId(account.getId())
-                .userId(account.getUserId())
-                .accountName(loginRequest.getAccountName())
-                .ipAddress(loginRequest.getIpAddress())
-                .isLoginSuccessful(false)
-                .loginTimestamp(DateUtil.toLocalDateTime(loginRequest.getLoginTimestamp()))
-                .deviceType(DeviceType.valueOf(loginRequest.getDeviceType()))
-                .deviceOs(loginRequest.getDeviceOS())
-                .browserName(loginRequest.getBrowserName())
-                .browserVersion(loginRequest.getBrowserVersion())
-                .build();
-        loginHistoryRepository.save(failedLogin);
         log.info("Account {} has been lock after {} failed attempts", loginRequest.getAccountName(),
                 applicationProperties.getMaxFailedAttempts());
         // Reset failed attempts

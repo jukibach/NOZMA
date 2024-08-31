@@ -13,11 +13,11 @@ CREATE TABLE s_workout.m_exercise_columns
 );
 -- 1 = text, 2 = multi select, 3 = multiline text
 INSERT INTO s_workout.m_exercise_columns (code, name, description, type)
-VALUES ('exercise', 'Exercise', 'Description of the exercise', 'text'),
-       ('equipment', 'Equipment', 'Equipment needed for the exercise', 'multiSelect'),
-       ('exerciseType', 'Exercise Type', 'Type of exercise (e.g., strength, cardio)', 'multiSelect'),
+VALUES ('name', 'Exercise', 'Description of the exercise', 'text'),
+       ('equipments', 'Equipments', 'Equipment needed for the exercise', 'multiSelect'),
+       ('exerciseTypes', 'Exercise Type', 'Type of exercise (e.g., strength, cardio)', 'multiSelect'),
        ('majorMuscle', 'Major Muscle', 'Primary muscle targeted by the exercise', 'text'),
-       ('muscleGroup', 'Muscle Group', 'Group of muscles involved in the exercise', 'text'),
+       ('muscleGroup', 'Muscle Group', 'Group of muscles involved in the exercise', 'multiSelect'),
        ('mechanic', 'Mechanic', NULL, 'text'),
        ('bodyRegion', 'Body Region', NULL, 'text'),
        ('laterality', 'Laterality', NULL, 'text'),
@@ -42,9 +42,9 @@ CREATE TABLE s_workout.t_user_exercise_settings
 INSERT INTO s_workout.t_user_exercise_settings (account_id, code, settings)
 VALUES (1, 'exercises', '
 {
-  "exercise": true,
-  "equipment": true,
-  "exerciseType": true,
+  "name": true,
+  "equipments": true,
+  "exerciseTypes": true,
   "majorMuscle": true,
   "muscleGroup": true,
   "mechanics": true,
@@ -55,12 +55,12 @@ VALUES (1, 'exercises', '
 }'),
        (2, 'exercises', '
        {
-         "exercise": true,
-         "equipment": true,
-         "exerciseType": true,
+         "name": true,
+         "equipments": true,
+         "exerciseTypes": true,
          "majorMuscle": true,
          "muscleGroup": true,
-         "mechanic": true,
+         "mechanics": true,
          "bodyRegion": true,
          "laterality": true,
          "movementPatterns": true,

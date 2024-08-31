@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 @Getter
 @Setter
@@ -78,4 +80,20 @@ public class ApplicationProperties {
     
     @Value("${key.aws-kms-key-id}")
     private String kmsKeyId;
+    
+    @Value("${cors.allowCredentials}")
+    private boolean corsAllowCredentials;
+    
+    @Value("${cors.allowOrigins}")
+    private List<String> corsAllowOrigins;
+    
+    @Value("${cors.allowHeaders}")
+    private List<String> corsAllowHeaders;
+    
+    @Value("${cors.allowExposedHeaders}")
+    private List<String> corsAllowExposedHeaders;
+    
+    @Value("${cors.allowMethods}")
+    private List<String> corsAllowMethods;
+    
 }

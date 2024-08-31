@@ -18,15 +18,4 @@ public class LoginRequest {
     @CustomNotNull(message = MessageConstant.FIELD_REQUIRED, fieldCode = FieldNamesConstant.PASSWORD)
     private String password;
     
-    //    @Pattern(regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){7}$",
-//            message = "Invalid IP address format")
-    private String ipAddress; // Supports both IPv4 and IPv6 addresses
-    
-    //    @NotBlank(message = "Login timestamp is required")
-    private String loginTimestamp;
-    
-    private String deviceType;
-    private String deviceOS;
-    private String browserName;
-    private String browserVersion;
 }

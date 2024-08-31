@@ -8,7 +8,6 @@ public record LoginResponse(
         String profileToken,
         String refreshToken,
         String role,
-        List<String> privileges,
-        String loginTimestamp
+        List<String> privileges
 ) {
 }

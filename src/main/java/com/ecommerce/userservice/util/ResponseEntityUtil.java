@@ -23,7 +23,7 @@ public class ResponseEntityUtil {
         return new ResponseEntity<>(ApiResponse.ok("Request was successful.", null), HttpStatus.OK);
     }
     
-    public static ResponseEntity<ApiResponse> createFailureResponse(BusinessException exception,
+    public static ResponseEntity<ApiResponse> createFailureResponse(Exception exception,
                                                                     MessageSource messageSource) {
         String message = messageSource.getMessage(exception.getMessage(), null,
                 LocaleContextHolder.getLocale());

@@ -1,6 +1,5 @@
 package com.ecommerce.userservice.dto.request;
 
-import java.util.List;
 import java.util.Map;
 
 public record ExercisePagePayload(

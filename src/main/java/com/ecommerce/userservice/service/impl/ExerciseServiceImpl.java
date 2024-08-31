@@ -1,7 +1,7 @@
 package com.ecommerce.userservice.service.impl;
 
+import com.ecommerce.userservice.dto.ExerciseRow;
 import com.ecommerce.userservice.dto.request.ExercisePagePayload;
-import com.ecommerce.userservice.dto.response.ExerciseRowResponse;
 import com.ecommerce.userservice.dto.response.ExerciseTableResponse;
 import com.ecommerce.userservice.entity.Exercise;
 import com.ecommerce.userservice.entity.ExerciseEquipment;
@@ -18,7 +18,6 @@ import com.ecommerce.userservice.repository.ExerciseColumnRepository;
 import com.ecommerce.userservice.repository.ExerciseEquipmentRepository;
 import com.ecommerce.userservice.repository.ExerciseMovementPatternRepository;
 import com.ecommerce.userservice.repository.ExerciseMuscleGroupRepository;
-import com.ecommerce.userservice.repository.ExerciseRepository;
 import com.ecommerce.userservice.repository.UserExerciseSettingRepository;
 import com.ecommerce.userservice.service.ExerciseService;
 import com.ecommerce.userservice.util.CommonUtil;
@@ -34,14 +33,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseColumnRepository exerciseColumnRepository;
-    private final ExerciseRepository exerciseRepository;
     private final ExerciseMapper exerciseMapper;
     private final CustomExerciseMapper customExerciseMapper;
     private final ExerciseMovementPatternRepository exerciseMovementPatternRepository;
@@ -55,7 +52,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         // TODO:
         //  paging
         //  store setting (user, pageId)
-        //
+        //  Exercises created by users
         
         // If user is logged in
         if (CommonUtil.isNullOrEmpty(SecurityUtil.getCurrentAccountId())) {
@@ -68,87 +65,68 @@ public class ExerciseServiceImpl implements ExerciseService {
                 new TypeReference<Map<String, Boolean>>() {
                 });
         
-        List<String> columnCodes = new ArrayList<>();
+        var visibleColumnCodes = new ArrayList<String>();
         columnSettings.forEach((key, value) -> {
             if (Boolean.TRUE.equals(value)) {
-                columnCodes.add(key);
+                visibleColumnCodes.add(key);
             }
         });
         
-        List<String> nonListExerciseColumns = getNonListExerciseColumns(columnCodes);
-        var exercises = mybatisExerciseMapper.selectFields(nonListExerciseColumns, exercisePagePayload);
-        var exerciseIds = exercises.stream().map(ExerciseRowResponse::getId).toList();
-        var columns = exerciseColumnRepository.findAllByStatusAndCodeIn(RecordStatus.ACTIVE, columnCodes);
+        var nonListExerciseColumns = getNonListExerciseVisibleColumns(visibleColumnCodes);
+        var exerciseRows = mybatisExerciseMapper.selectFields(nonListExerciseColumns, exercisePagePayload);
+        var exerciseIds = exerciseRows.stream().map(ExerciseRow::getId).toList();
+        var columns = exerciseColumnRepository.findAllByStatusAndCodeIn(RecordStatus.ACTIVE, visibleColumnCodes);
         
-        Map<Long, List<String>> groupByExerciseIdAndReturnListOfEquipmentName = null;
-        if (columnCodes.contains("equipment")) {
-            var exerciseEquipments = exerciseEquipmentRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
-                    exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
-            );
-            groupByExerciseIdAndReturnListOfEquipmentName =
-                    exerciseEquipments.stream().collect(Collectors.groupingBy(ExerciseEquipment::getExerciseId,
-                            Collectors.mapping(ExerciseEquipment::getEquipmentName, Collectors.toList())));
-        }
+        List<ExerciseEquipment> exerciseEquipments = visibleColumnCodes.contains(
+                ExerciseColumnEnum.EQUIPMENT.getCode()) ?
+                exerciseEquipmentRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
+                        exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
+                ) : null;
         
-        Map<Long, List<String>> groupByExerciseIdAndReturnListOfMovementPatternName = null;
-        if (columnCodes.contains("movementPatterns")) {
-            var exerciseMovementPatterns = exerciseMovementPatternRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
-                    exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
-            );
-            groupByExerciseIdAndReturnListOfMovementPatternName = exerciseMovementPatterns.stream()
-                    .collect(Collectors.groupingBy(ExerciseMovementPattern::getExerciseId,
-                            Collectors.mapping(ExerciseMovementPattern::getPatternName,
-                                    Collectors.toList())));
-        }
+        List<ExerciseMovementPattern> exerciseMovementPatterns = visibleColumnCodes.contains(
+                ExerciseColumnEnum.MOVEMENT_PATTERNS.getCode()) ?
+                exerciseMovementPatternRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
+                        exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
+                ) : null;
         
-        Map<Long, List<String>> groupByExerciseIdAndReturnListOfMuscleGroupName = null;
-        if (columnCodes.contains("muscleGroup")) {
-            var exerciseMuscleGroups = exerciseMuscleGroupRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
-                    exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
-            );
-            groupByExerciseIdAndReturnListOfMuscleGroupName = exerciseMuscleGroups.stream()
-                    .collect(Collectors.groupingBy(ExerciseMuscleGroup::getExerciseId,
-                            Collectors.mapping(ExerciseMuscleGroup::getMuscleGroupName,
-                                    Collectors.toList())));
-        }
+        List<ExerciseMuscleGroup> exerciseMuscleGroups = visibleColumnCodes.contains(
+                ExerciseColumnEnum.MUSCLE_GROUP.getCode()) ?
+                exerciseMuscleGroupRepository.findAllByExerciseIdInAndCreatedByInAndStatus(
+                        exerciseIds, Collections.singletonList("SYSTEM"), RecordStatus.ACTIVE
+                ) : null;
         
         var exerciseColumns = exerciseMapper.viewToResponse(columns);
         
-        var exerciseConverted = customExerciseMapper.convertToExerciseRowResponse(exercises,
-                groupByExerciseIdAndReturnListOfEquipmentName,
-                groupByExerciseIdAndReturnListOfMovementPatternName,
-                groupByExerciseIdAndReturnListOfMuscleGroupName);
+        var exerciseRowResponses = customExerciseMapper.convertToExerciseRowResponse(exerciseRows,
+                exerciseEquipments,
+                exerciseMovementPatterns,
+                exerciseMuscleGroups);
         
-        
-        // TODO: Exercises created by users
-        return ExerciseTableResponse.builder()
-                .columns(exerciseColumns)
-                .primaryColumnId(ExerciseColumnEnum.EXERCISE.ordinal() + 1)
-                .rows(exerciseConverted)
-                .build();
+        return new ExerciseTableResponse(exerciseColumns, ExerciseColumnEnum.EXERCISE.ordinal() + 1,
+                exerciseRowResponses, exerciseRowResponses.size());
     }
     
-    private static List<String> getNonListExerciseColumns(List<String> columnCodes) {
+    private static List<String> getNonListExerciseVisibleColumns(List<String> columnCodes) {
         List<String> nonListExerciseColumns = new ArrayList<>();
-        if (columnCodes.contains(Exercise.Fields.name)) {
+        if (columnCodes.contains(ExerciseColumnEnum.EXERCISE.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.name);
         }
-        if (columnCodes.contains(Exercise.Fields.description)) {
+        if (columnCodes.contains(ExerciseColumnEnum.DESCRIPTION.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.description);
         }
-        if (columnCodes.contains(Exercise.Fields.majorMuscle)) {
+        if (columnCodes.contains(ExerciseColumnEnum.MAJOR_MUSCLE.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.majorMuscle);
         }
-        if (columnCodes.contains(Exercise.Fields.mechanics)) {
+        if (columnCodes.contains(ExerciseColumnEnum.MECHANIC.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.mechanics);
         }
-        if (columnCodes.contains(Exercise.Fields.bodyRegion)) {
+        if (columnCodes.contains(ExerciseColumnEnum.BODY_REGION.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.bodyRegion);
         }
-        if (columnCodes.contains(Exercise.Fields.laterality)) {
+        if (columnCodes.contains(ExerciseColumnEnum.LATERALITY.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.laterality);
         }
-        if (columnCodes.contains("exerciseType")) {
+        if (columnCodes.contains(ExerciseColumnEnum.EXERCISE_TYPE.getCode())) {
             nonListExerciseColumns.add(Exercise.Fields.isCardio);
             nonListExerciseColumns.add(Exercise.Fields.isPlyo);
             nonListExerciseColumns.add(Exercise.Fields.isWeight);

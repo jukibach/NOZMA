@@ -11,6 +11,10 @@ import com.ecommerce.userservice.service.LoginHistoryService;
 import com.ecommerce.userservice.util.CommonUtil;
 import com.ecommerce.userservice.util.DateUtil;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,16 +45,16 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
         }
         if (account.isLocked()) {
             loginHistoryService.unlockWhenExpired(account);
-            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
+            throw new LockedException(Strings.EMPTY);
         }
         if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
+            throw new DisabledException(Strings.EMPTY);
         }
         var passwordExpiredDate = account.getToDate();
         var passwordDayLeft = CommonUtil.isNullOrEmpty(passwordExpiredDate) ? 0L :
                 DateUtil.getCurrentDate().until(passwordExpiredDate, ChronoUnit.DAYS) + 1;
         if (passwordExpiredDate.isBefore(DateUtil.getCurrentDate()) || passwordDayLeft == 0) {
-            throw new BusinessException(StatusAndMessage.PASSWORD_EXPIRED);
+            throw new CredentialsExpiredException(Strings.EMPTY);
         }
         var user = userRepository.findById(account.getUserId());
         if (user.isEmpty()) {
