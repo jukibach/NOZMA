@@ -14,7 +14,7 @@ public enum ExerciseColumnEnum {
     
     MUSCLE_GROUP("muscleGroup", "text"),
     
-    MECHANIC("mechanic", "text"),
+    MECHANIC("mechanics", "text"),
     
     BODY_REGION("bodyRegion", "text"),
     

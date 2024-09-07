@@ -14,4 +14,8 @@ public interface MybatisExerciseMapper {
     @SelectProvider(type = MybatisExerciseSqlProvider.class, method = "selectFields")
     List<ExerciseRow> selectFields(@Param("exerciseColumnNames") List<String> exerciseColumnNames,
                                    @Param("exercisePagePayload") ExercisePagePayload exercisePagePayload);
+    
+    @SelectProvider(type = MybatisExerciseSqlProvider.class, method = "countExerciseRows")
+    Integer countExerciseRows(@Param("exerciseColumnNames") List<String> exerciseColumnNames,
+                                   @Param("exercisePagePayload") ExercisePagePayload exercisePagePayload);
 }

@@ -8,6 +8,7 @@ import com.ecommerce.userservice.util.ResponseEntityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExerciseController {
     private final ExerciseService exerciseService;
     
-    @PostMapping(value = ApiURL.GET_EXERCISE)
+    @GetMapping(value = ApiURL.GET_EXERCISE)
     public ResponseEntity<ApiResponse> getExercises(
-            @RequestBody ExercisePagePayload exercisePagePayload) throws JsonProcessingException {
+            ExercisePagePayload exercisePagePayload) throws JsonProcessingException,
+            IllegalAccessException {
         return ResponseEntityUtil.createSuccessResponse(exerciseService.getExercises(exercisePagePayload));
+    }
+    
+    @GetMapping(value = ApiURL.GET_EXERCISE_GUEST)
+    public ResponseEntity<ApiResponse> getExercisesForGuest(ExercisePagePayload exercisePagePayload) {
+        return ResponseEntityUtil.createSuccessResponse(exerciseService.getExercisesForGuest(exercisePagePayload));
     }
 }

@@ -1,4 +1,4 @@
-package com.ecommerce.userservice.config;
+package com.ecommerce.userservice.filter;
 
 import com.ecommerce.userservice.entity.TokenDetail;
 import com.ecommerce.userservice.enums.StatusAndMessage;

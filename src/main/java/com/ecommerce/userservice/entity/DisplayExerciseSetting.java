@@ -6,31 +6,38 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.FieldDefaults;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "m_privileges", schema = "s_account")
-@Entity(name = "Privileges")
+@FieldNameConstants
+@Table(name = "t_display_exercise_settings", schema = "s_workout")
+@Entity(name = "DisplayExerciseSettings")
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class Privilege extends BaseDomain {
+public class DisplayExerciseSetting extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    
-    private String name;
-    
-    private String description;
+    private Long id;
+    private long accountId;
+    private String code;
+    private boolean name;
+    private boolean bodyRegion;
+    private boolean laterality;
+    private boolean majorMuscle;
+    private boolean mechanics;
+    private boolean equipments;
+    private boolean exerciseTypes;
+    private boolean muscleGroup;
+    private boolean movementPatterns;
+    private boolean description;
     
 }

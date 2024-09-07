@@ -59,7 +59,7 @@ public class AuthenticationController {
     }
     
     @PostMapping(value = ApiURL.LOGOUT)
-    public ResponseEntity<ApiResponse> logout(@Valid @RequestParam String profileToken) {
+    public ResponseEntity<ApiResponse> logout(@Valid @RequestBody String profileToken) {
         authenticationService.logout(profileToken);
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }

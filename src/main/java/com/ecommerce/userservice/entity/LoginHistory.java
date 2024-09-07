@@ -2,6 +2,7 @@ package com.ecommerce.userservice.entity;
 
 import com.ecommerce.userservice.enums.DeviceType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +28,7 @@ import java.time.LocalDateTime;
 @Entity(name = "loginHistories")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class LoginHistory extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,5 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ExerciseColumnRepository extends JpaRepository<ExerciseColumn, Integer> {
-    List<ExerciseColumnView> findAllByStatusAndCodeIn(RecordStatus status, List<String> columnCodes);
+    
+    List<ExerciseColumnView> findAllByStatus(RecordStatus status);
+    
+    
 }

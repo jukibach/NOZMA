@@ -2,6 +2,7 @@ package com.ecommerce.userservice.exception;
 
 import com.ecommerce.userservice.dto.response.ApiResponse;
 import com.ecommerce.userservice.enums.StatusAndMessage;
+import com.ecommerce.userservice.util.CommonUtil;
 import com.ecommerce.userservice.util.ResponseEntityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse> handleBusinessException(BusinessException exception) {
+        if (CommonUtil.isNonNullOrNonEmpty(exception.getResult()))
+            return ResponseEntityUtil.createFailureResponseForInvalidFields(exception, messageSource);
         return ResponseEntityUtil.createFailureResponse(exception, messageSource);
     }
     

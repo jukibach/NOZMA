@@ -76,8 +76,44 @@ public class MybatisExerciseSqlProvider {
         sql.LIMIT(
                 CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.pageSize()) ? exercisePagePayload.pageSize() : 20
         ).OFFSET(
-                CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.pageIndex()) ? exercisePagePayload.pageIndex() : 0
+                CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.pageIndex()) ? (long) exercisePagePayload.pageIndex() * exercisePagePayload.pageSize() : 0
         );
+        
+        return sql.toString();
+    }
+    
+    public String countExerciseRows(List<String> exerciseColumnNames, ExercisePagePayload exercisePagePayload) {
+        var sql = new SQL();
+        var workoutSchemaName = CommonUtil.getSchemaName(Exercise.class);
+        var exerciseTableName = CommonUtil.getTableName(Exercise.class);
+        var exerciseEntityName = CommonUtil.getEntityName(Exercise.class);
+        
+        // s_account.t_accounts as accounts
+        var baseTable = "%s.%s AS %s".formatted(workoutSchemaName, exerciseTableName, exerciseEntityName);
+        
+        sql.SELECT("COUNT(*)");
+        
+        sql.FROM(baseTable);
+        
+        sql.WHERE("%s = '%s'".formatted(BaseDomain.Fields.status, RecordStatus.ACTIVE.name()))
+                .AND()
+                .WHERE("created_by = '%s'".formatted("SYSTEM"));
+//        .concat(Constant.OR)
+//                .concat(BaseDomain.Fields.createdBy.concat(Constant.EQUAL).concat(createdByUser))
+        // Add conditions
+        if (CommonUtil.isNonNullOrNonEmpty(exercisePagePayload.searchName())) {
+            List<String> conditions = new ArrayList<>();
+            FIELD_TO_COLUMN_MAP.forEach((responseColumn, databaseField) -> {
+                if (exerciseColumnNames.contains(responseColumn)
+                        && !List.of(Exercise.Fields.isPlyo, Exercise.Fields.isCardio, Exercise.Fields.isWeight).contains(responseColumn)) {
+                    conditions.add("""
+                            %s LIKE '%%%s%%'
+                            """.formatted(databaseField, exercisePagePayload.searchName()));
+                }
+            });
+            String whereClause = String.join(Constant.OR, conditions);
+            sql.WHERE(whereClause);
+        }
         
         return sql.toString();
     }

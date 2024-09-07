@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 @Entity(name = "accounts")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class Account extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

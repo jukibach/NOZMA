@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.config;
 
 import com.ecommerce.userservice.entity.Account;
+import com.ecommerce.userservice.entity.JwtAccountDetails;
 import com.ecommerce.userservice.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ public class AuditorAwareConfig {
                     || "anonymousUser".equals(authentication.getName())) {
                 return Optional.of("system");
             }
-            Account account = (Account) authentication.getPrincipal();
+            JwtAccountDetails account = (JwtAccountDetails) authentication.getPrincipal();
             return Optional.of(account.getAccountName());
         };
     }

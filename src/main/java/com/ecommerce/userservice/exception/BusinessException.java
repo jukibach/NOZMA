@@ -18,6 +18,11 @@ public class BusinessException extends BaseException {
         this.result = null;
     }
     
+    public BusinessException(String message, Object result) {
+        super(null, message);
+        this.result = result;
+    }
+    
     public BusinessException(IEnumStatusAndMessage statusAndMessage) {
         super(null, statusAndMessage.getMessage());
         this.result = null;

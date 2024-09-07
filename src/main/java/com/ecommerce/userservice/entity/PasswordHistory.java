@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 
@@ -21,6 +23,7 @@ import java.time.LocalDate;
 @Table(name = "t_password_histories", schema = "s_account")
 @Entity(name = "passwordHistories")
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class PasswordHistory extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

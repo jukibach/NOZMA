@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "m_movement_patterns", schema = "s_workout")
 @Entity(name = "MovementPatterns")
+@EntityListeners(AuditingEntityListener.class)
 public class MovementPattern extends BaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

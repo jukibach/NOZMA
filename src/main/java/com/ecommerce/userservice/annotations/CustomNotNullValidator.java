@@ -25,9 +25,7 @@ public class CustomNotNullValidator implements ConstraintValidator<CustomNotNull
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (CommonUtil.isNullOrEmpty(value)) {
             String fieldName = messageSource.getMessage(fieldCode, null, LocaleContextHolder.getLocale());
-            String message = messageSource.getMessage(messageCode, new Object[]{fieldName},
-                    LocaleContextHolder.getLocale());
-            throw new BusinessException(message);
+            throw new BusinessException(messageCode, fieldName);
         }
         return true;
     }

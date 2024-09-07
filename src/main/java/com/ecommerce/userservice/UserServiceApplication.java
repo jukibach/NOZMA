@@ -25,8 +25,10 @@ public class UserServiceApplication {
         stringBuilder.append("\n-------------------------\n");
 
         try {
-            log.info(stringBuilder.toString(), environment.getProperty("spring.application.name"),
-                    environment.getProperty("server.port"), InetAddress.getLocalHost().getHostAddress(),
+            log.info(stringBuilder.toString(),
+                    environment.getProperty("spring.application.name"),
+                    environment.getProperty("server.port"),
+                    InetAddress.getLocalHost().getHostAddress(),
                     environment.getProperty("server.port"));
         } catch (UnknownHostException exception) {
             log.info(stringBuilder.toString(), environment.getProperty("spring.application.name"),
