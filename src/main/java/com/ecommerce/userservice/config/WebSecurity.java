@@ -147,6 +147,7 @@ public class WebSecurity implements WebMvcConfigurer {
                                 ).permitAll()
                                 .requestMatchers(
                                         ApiURL.ROOT_PATH + ApiURL.REISSUE_PASSWORD,
+                                        ApiURL.ROOT_PATH + ApiURL.REISSUE_TOKEN,
                                         ApiURL.ROOT_PATH + ApiURL.REGISTER_USER,
                                         ApiURL.ROOT_PATH + ApiURL.LOGIN,
                                         ApiURL.ROOT_PATH + ApiURL.GET_EXERCISE_GUEST

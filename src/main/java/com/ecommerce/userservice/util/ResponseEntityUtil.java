@@ -11,8 +11,12 @@ public class ResponseEntityUtil {
     private ResponseEntityUtil() {
     }
     
-    public static ResponseEntity<ApiResponse> createSuccessResponse(Object data) {
+    public static ResponseEntity<ApiResponse> createSuccessfulOkResponse(Object data) {
         return new ResponseEntity<>(ApiResponse.ok("Request was successful.", data), HttpStatus.OK);
+    }
+    
+    public static ResponseEntity<ApiResponse> createSuccessfulPatchResponse() {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
     public static ResponseEntity<ApiResponse> createSuccessResponseWithCreatedStatus(Object data) {

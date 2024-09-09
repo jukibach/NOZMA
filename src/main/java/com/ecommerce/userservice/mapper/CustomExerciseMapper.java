@@ -23,7 +23,7 @@ public class CustomExerciseMapper {
                                                                   List<ExerciseEquipment> exerciseEquipments,
                                                                   List<ExerciseMovementPattern> exerciseMovementPatterns,
                                                                   List<ExerciseMuscleGroup> exerciseMuscleGroups) {
-        List<ExerciseRowResponse> exerciseRowResponses = new ArrayList<>();
+            List<ExerciseRowResponse> exerciseRowResponses = new ArrayList<>();
         
         // Group data by exercise ID
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfEquipmentName =
@@ -33,14 +33,14 @@ public class CustomExerciseMapper {
         
         // Group data by exercise ID
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfMovementPatternName =
-                CommonUtil.isNonNullOrNonEmpty(exerciseMovementPatterns)
+                CommonUtil.isNonNullOrNonEmpty  (exerciseMovementPatterns)
                         ? exerciseMovementPatterns.stream().collect(Collectors.groupingBy(
                         ExerciseMovementPattern::getExerciseId,
                         Collectors.mapping(ExerciseMovementPattern::getPatternName, Collectors.toList()))) : null;
         
         // Group data by exercise ID
         Map<Long, List<String>> groupByExerciseIdAndReturnListOfMuscleGroupName =
-                CommonUtil.isNonNullOrNonEmpty(exerciseEquipments)
+                CommonUtil.isNonNullOrNonEmpty(exerciseMuscleGroups)
                         ? exerciseMuscleGroups.stream().collect(Collectors.groupingBy(
                         ExerciseMuscleGroup::getExerciseId, Collectors.mapping(ExerciseMuscleGroup::getMuscleGroupName,
                                 Collectors.toList()))) : null;

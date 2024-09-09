@@ -16,4 +16,5 @@ public class ApiURL {
     public static final String GET_EXERCISE_GUEST = "/v1/exercises/guest";
     public static final String ACTUATOR_HEALTH = "/actuator/health";
     public static final String ACTUATOR_INFO = "/actuator/info";
+    public static final String UPDATE_DISPLAY_EXERCISE_SETTING_BY_ID = "/v1/exercises/display-setting/{id}";
 }

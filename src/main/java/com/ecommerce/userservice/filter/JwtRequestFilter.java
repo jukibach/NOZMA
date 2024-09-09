@@ -42,9 +42,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         var profileToken = CommonUtil.retrieveToken(request);
         try {
             if (CommonUtil.isNonNullOrNonEmpty(profileToken)) {
-                if (tokenService.checkTokenExistsInBlackList(profileToken)) {
+                if (tokenService.checkTokenExistsInBlackList(profileToken))
                     throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);
-                }
+                    
+//                    throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_LOGOUT);
                 
                 TokenDetail tokenDetail = tokenService.validateToken(profileToken);
                 if (CommonUtil.isNonNullOrNonEmpty(tokenDetail.getAccountName())
@@ -55,8 +56,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             UsernamePasswordAuthenticationToken(userDetails, null,
                             userDetails.getAuthorities());
                     
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource()
-                            .buildDetails(request));
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+                            request));
                     
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
@@ -64,15 +65,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
             String requestLanguage = request.getParameter("lang");
-            if (CommonUtil.isNullOrEmpty(requestLanguage)) {
+            if (CommonUtil.isNullOrEmpty(requestLanguage))
                 requestLanguage = Locale.FRENCH.getLanguage();
-            }
             LocaleContextHolder.setLocale(new Locale(requestLanguage));
-            if (ex instanceof BusinessException) {
+            if (ex instanceof BusinessException)
                 handleBusinessException(response, ex);
-            } else {
+            else
                 handleNormalException(response, ex);
-            }
+            
         }
     }
     
@@ -90,8 +90,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private void handleBusinessException(HttpServletResponse response, Exception ex) throws IOException {
         // Custom error message in JSON format
         Map<String, String> errorResponse = new HashMap<>();
-        String message = messageSource.getMessage(ex.getMessage(), null,
-                LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
         errorResponse.put("code", ex.getMessage());
         errorResponse.put("message", message);
         errorResponse.put("status", HttpStatus.UNAUTHORIZED.name());

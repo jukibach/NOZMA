@@ -29,13 +29,13 @@ public class AccountController {
     @PreAuthorize("hasAuthority('" + Privileges.GET_USERS + "')")
     @PostMapping(value = ApiURL.GET_ACCOUNTS)
     public ResponseEntity<ApiResponse> getAccountList(@RequestBody PagePayload request) {
-        return ResponseEntityUtil.createSuccessResponse(accountService.getAccountList(request));
+        return ResponseEntityUtil.createSuccessfulOkResponse(accountService.getAccountList(request));
     }
     
     @PreAuthorize("hasAuthority('" + Privileges.GET_USER_DETAIL + "')")
     @GetMapping(value = ApiURL.ACCOUNT_BY_ID)
     public ResponseEntity<ApiResponse> getAccountDetail(@PathVariable(value = "id") Long accountId) {
-        return ResponseEntityUtil.createSuccessResponse(accountService.getAccountDetail(accountId));
+        return ResponseEntityUtil.createSuccessfulOkResponse(accountService.getAccountDetail(accountId));
     }
     
     @PreAuthorize("hasAuthority('" + Privileges.UPDATE_USER + "')")

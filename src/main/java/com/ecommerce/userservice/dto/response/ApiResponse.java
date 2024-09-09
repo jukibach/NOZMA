@@ -22,4 +22,9 @@ public record ApiResponse(
         return new ApiResponse(HttpStatus.BAD_REQUEST, code, message, result,
                 DateUtil.convertLocalDateTimeToString(LocalDateTime.now()));
     }
+    
+    public static ApiResponse noContent(String message) {
+        return new ApiResponse(HttpStatus.NO_CONTENT, MessageId.OK, message, null,
+                DateUtil.convertLocalDateTimeToString(LocalDateTime.now()));
+    }
 }

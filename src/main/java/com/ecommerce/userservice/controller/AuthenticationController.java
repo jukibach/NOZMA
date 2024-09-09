@@ -30,7 +30,7 @@ public class AuthenticationController {
     @PostMapping(value = ApiURL.LOGIN)
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        return ResponseEntityUtil.createSuccessResponse(authenticationService.login(request));
+        return ResponseEntityUtil.createSuccessfulOkResponse(authenticationService.login(request));
     }
     
     @PostMapping(value = ApiURL.REGISTER_USER) // Based on AWS
@@ -43,7 +43,7 @@ public class AuthenticationController {
     @PostMapping(value = ApiURL.REISSUE_TOKEN)
     public ResponseEntity<ApiResponse> reissueToken(@Valid @RequestBody ReissueTokenPayload payload)
             throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        return ResponseEntityUtil.createSuccessResponse(authenticationService.reissueToken(payload));
+        return ResponseEntityUtil.createSuccessfulOkResponse(authenticationService.reissueToken(payload));
     }
     
     @PostMapping(value = ApiURL.CHANGE_PASSWORD)

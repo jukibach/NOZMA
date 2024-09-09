@@ -86,7 +86,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
             var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
             
-            return new LoginResponse(account.getAccountName(), account.getEmail(), profileToken, refreshToken,
+            return new LoginResponse(account.getId(), account.getAccountName(), account.getEmail(), profileToken, refreshToken,
                     accountDetails.getUserRole(), accountDetails.getPrivileges());
             
         } catch (Exception exception) {

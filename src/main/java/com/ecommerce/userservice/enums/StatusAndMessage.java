@@ -22,7 +22,10 @@ public enum StatusAndMessage implements IEnumStatusAndMessage {
     
     TOKEN_EXPIRED(MessageId.E107),
     
-    USER_DOES_NOT_EXIST(MessageId.E108);
+    USER_DOES_NOT_EXIST(MessageId.E108),
+    
+    ACCOUNT_HAS_BEEN_LOGOUT(MessageId.E109)
+    ;
     
     private final String message;
 }
