@@ -72,8 +72,8 @@ public class MybatisUserSqlProvider {
                 if (pagePayload.visibleColumns().contains(responseColumn)
                         && !responseColumn.equals(AccountDetailResponse.Fields.creationTime)) {
                     conditions.add("""
-                            %s LIKE '%%%s%%'
-                            """.formatted(databaseField, pagePayload.searchName()));
+                            %s ILIKE '%%%s%%'
+                            """.formatted(databaseField, pagePayload.searchName().trim().toLowerCase()));
                 }
             });
             String whereClause = String.join(Constant.OR, conditions);

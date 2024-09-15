@@ -150,6 +150,7 @@ public class WebSecurity implements WebMvcConfigurer {
                                         ApiURL.ROOT_PATH + ApiURL.REISSUE_TOKEN,
                                         ApiURL.ROOT_PATH + ApiURL.REGISTER_USER,
                                         ApiURL.ROOT_PATH + ApiURL.LOGIN,
+                                        ApiURL.ROOT_PATH + ApiURL.LOGOUT,
                                         ApiURL.ROOT_PATH + ApiURL.GET_EXERCISE_GUEST
                                 ).permitAll()
                                 .anyRequest().authenticated())

@@ -65,7 +65,7 @@ public class MybatisExerciseSqlProvider {
                 if (exerciseColumnNames.contains(responseColumn)
                         && !List.of(Exercise.Fields.isPlyo, Exercise.Fields.isCardio, Exercise.Fields.isWeight).contains(responseColumn)) {
                     conditions.add("""
-                            %s LIKE '%%%s%%'
+                            %s ILIKE '%%%s%%'
                             """.formatted(databaseField, exercisePagePayload.searchName()));
                 }
             });
