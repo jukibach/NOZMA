@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nozma.core.mybatis.mapper.MybatisExerciseMapper">
+    <resultMap id="ExerciseRowMap" type="ExerciseRow">
+        <id column="exercise_id" property="id"/>
+        <result column="exercise_name" property="name"/>
+        <result column="exercise_description" property="description"/>
+        <result column="exercise_major_muscle" property="majorMuscle"/>
+        <result column="exercise_mechanics" property="mechanics"/>
+        <result column="exercise_body_region" property="bodyRegion"/>
+        <result column="exercise_laterality" property="laterality"/>
+
+        <result property="exerciseTypesString" column="types_name"/>
+        <result property="equipmentsString" column="equipments_name"/>
+        <result property="movementPatternsString" column="movement_patterns_name"/>
+        <result property="muscleGroupString" column="muscle_group_name"/>
+    </resultMap>
+
+    <sql id="whereConditions">
+        WHERE exercises.status = 'ACTIVE'
+        AND exercises.created_by IN
+        <foreach item="createdBy" collection="createdBys" open="(" separator="," close=")">
+            #{createdBy}
+        </foreach>
+        <if test="exercisePagePayload.searchName != null">
+            OR exercises.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            <if test="exerciseColumnNames.contains('majorMuscle')">
+                OR major_muscle.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+            <if test="exerciseColumnNames.contains('bodyRegion')">
+                OR body_regions.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+            <if test="exerciseColumnNames.contains('laterality')">
+                OR laterality.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+            <if test="exerciseColumnNames.contains('mechanics')">
+                OR mechanics.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+            <if test="exerciseColumnNames.contains('description')">
+                OR exercises.description ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+
+            <if test="exerciseColumnNames.contains('exerciseTypes')">
+                OR types.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+
+            <if test="exerciseColumnNames.contains('muscleGroup')">
+                OR muscle_group.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+
+            <if test="exerciseColumnNames.contains('movementPatterns')">
+                OR movement_patterns.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+
+            <if test="exerciseColumnNames.contains('equipments')">
+                OR equipments.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            </if>
+        </if>
+    </sql>
+
+    <sql id="joinStatements">
+        FROM s_workout.t_exercises exercises
+        <if test="exerciseColumnNames.contains('bodyRegion')">
+            LEFT JOIN s_workout.m_body_regions body_regions ON body_regions.id = exercises.body_region_id
+        </if>
+        <if test="exerciseColumnNames.contains('laterality')">
+            LEFT JOIN s_workout.m_laterality laterality ON laterality.id = exercises.laterality_id
+        </if>
+        <if test="exerciseColumnNames.contains('majorMuscle')">
+            LEFT JOIN s_workout.m_major_muscles major_muscle ON major_muscle.id = exercises.major_muscle_id
+        </if>
+        <if test="exerciseColumnNames.contains('mechanics')">
+            LEFT JOIN s_workout.m_mechanics mechanics ON mechanics.id = exercises.mechanics_id
+        </if>
+
+        <if test="exerciseColumnNames.contains('exerciseTypes')">
+            LEFT JOIN s_workout.t_exercises_types exercises_types ON exercises_types.exercise_id = exercises.id
+            LEFT JOIN s_workout.m_types types ON exercises_types.type_id = types.id
+        </if>
+
+        <if test="exerciseColumnNames.contains('muscleGroup')">
+            LEFT JOIN s_workout.t_exercises_muscles_group exercises_muscles_group ON exercises_muscles_group.exercise_id
+            = exercises.id
+            LEFT JOIN s_workout.m_muscle_group muscle_group ON exercises_muscles_group.muscle_group_id =
+            muscle_group.id
+        </if>
+
+        <if test="exerciseColumnNames.contains('movementPatterns')">
+            LEFT JOIN s_workout.t_exercises_movement_patterns exercises_movement_patterns ON
+            exercises_movement_patterns.exercise_id = exercises.id
+            LEFT JOIN s_workout.m_movement_patterns movement_patterns ON exercises_movement_patterns.pattern_id =
+            movement_patterns.id
+        </if>
+
+        <if test="exerciseColumnNames.contains('equipments')">
+            LEFT JOIN s_workout.t_exercises_equipments exercises_equipments ON
+            exercises_equipments.exercise_id = exercises.id
+            LEFT JOIN s_workout.m_equipments equipments ON exercises_equipments.equipment_id = equipments.id
+        </if>
+    </sql>
+
+    <sql id="selectStatements">
+        <if test="exerciseColumnNames.contains('bodyRegion')">
+            , body_regions.name AS exercise_body_region
+        </if>
+        <if test="exerciseColumnNames.contains('laterality')">
+            , laterality.name AS exercise_laterality
+        </if>
+        <if test="exerciseColumnNames.contains('majorMuscle')">
+            , major_muscle.name AS exercise_major_muscle
+        </if>
+        <if test="exerciseColumnNames.contains('description')">
+            , exercises.description AS exercise_description
+        </if>
+        <if test="exerciseColumnNames.contains('mechanics')">
+            , mechanics.name AS exercise_mechanics
+        </if>
+
+        <if test="exerciseColumnNames.contains('exerciseTypes')">
+            , STRING_AGG(DISTINCT types.name, ',') AS types_name
+        </if>
+
+        <if test="exerciseColumnNames.contains('muscleGroup')">
+            , STRING_AGG(DISTINCT muscle_group.name, ',') AS muscle_group_name
+        </if>
+
+        <if test="exerciseColumnNames.contains('movementPatterns')">
+            , STRING_AGG(DISTINCT movement_patterns.name, ',') AS movement_patterns_name
+        </if>
+
+        <if test="exerciseColumnNames.contains('equipments')">
+            , STRING_AGG(DISTINCT equipments.name, ',') AS equipments_name
+        </if>
+    </sql>
+
+    <sql id="groupByStatements">
+        GROUP BY exercises.id, exercises.name
+        <if test="exerciseColumnNames.contains('bodyRegion')">
+            , body_regions.name
+        </if>
+        <if test="exerciseColumnNames.contains('laterality')">
+            , laterality.name
+        </if>
+        <if test="exerciseColumnNames.contains('majorMuscle')">
+            , major_muscle.name
+        </if>
+        <if test="exerciseColumnNames.contains('description')">
+            , exercises.description
+        </if>
+        <if test="exerciseColumnNames.contains('mechanics')">
+            , mechanics.name
+        </if>
+    </sql>
+
+    <sql id="sortStatement">
+        <choose>
+            <when test="exercisePagePayload.sortOrders != null">
+                ORDER BY ${exercisePagePayload.sortOrders}
+            </when>
+            <otherwise>
+                ORDER BY exercises.id
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="pagingStatement">
+        LIMIT
+        <if test="exercisePagePayload.pageSize != null">
+            #{exercisePagePayload.pageSize}
+        </if>
+        <if test="exercisePagePayload.pageSize == null">
+             20
+        </if>
+        OFFSET
+        <if test="exercisePagePayload.pageIndex == null or exercisePagePayload.pageIndex == 0">
+             0
+        </if>
+        <if test="exercisePagePayload.pageIndex != null and exercisePagePayload.pageIndex != 0">
+            #{exercisePagePayload.pageIndex} * #{exercisePagePayload.pageSize}
+        </if>
+    </sql>
+
+    <select id="selectDynamicFields" resultMap="ExerciseRowMap">
+        SELECT exercises.id AS exercise_id, exercises.name as exercise_name
+
+        <include refid="selectStatements"/>
+
+        <include refid="joinStatements"/>
+
+        <include refid="whereConditions"/>
+
+        <include refid="groupByStatements"/>
+
+        <include refid="sortStatement"/>
+
+        <include refid="pagingStatement"/>
+
+    </select>
+
+    <select id="countExerciseRows" resultType="Integer">
+
+        WITH total_rows AS (
+        SELECT 1
+        <include refid="joinStatements"/>
+        <include refid="whereConditions"/>
+        <include refid="groupByStatements"/>
+        )
+        SELECT COUNT(*) FROM total_rows
+
+    </select>
+</mapper>
