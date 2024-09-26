@@ -27,8 +27,7 @@ public class ExerciseController {
     }
     
     @GetMapping(value = ApiURL.GET_EXERCISE_GUEST)
-    public ResponseEntity<ApiResponse> getExercisesForGuest(ExercisePagePayload exercisePagePayload,
-                                                            @RequestParam String[] sort) {
+    public ResponseEntity<ApiResponse> getExercisesForGuest(ExercisePagePayload exercisePagePayload) {
         return ResponseEntityUtil.createSuccessfulOkResponse(exerciseService.getExercisesForGuest(exercisePagePayload));
     }
 }

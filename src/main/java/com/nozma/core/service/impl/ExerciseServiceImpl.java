@@ -81,8 +81,6 @@ public class ExerciseServiceImpl implements ExerciseService {
         var visibleColumnCodes = exerciseColumnResponses.stream().filter(ExerciseColumnResponse::visible)
                 .map(ExerciseColumnResponse::code).toList();
         
-        
-        
         var exerciseRows = mybatisExerciseMapper.selectDynamicFields(visibleColumnCodes, exercisePagePayload,
                 List.of("SYSTEM", SecurityUtil.getCurrentAccountName()));
         var totalRowsCount = mybatisExerciseMapper.countExerciseRows(visibleColumnCodes, exercisePagePayload,
