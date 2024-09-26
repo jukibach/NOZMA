@@ -66,6 +66,7 @@ jobs:
                     DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
                     IMAGE_TAG: latest
+
                 run: |
                     # Install Docker if it's not already installed
                     if ! command -v docker &> /dev/null; then
