@@ -60,7 +60,6 @@ jobs:
 
             -   name: SSH into EC2 and run Docker container
                 env:
-                    EC2_HOST: ${{ secrets.EC2_HOST }}           # The public IP or DNS of your EC2 instance
                     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                     ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
                     DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
