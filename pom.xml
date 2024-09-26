@@ -10,7 +10,8 @@
     </parent>
     <groupId>com.nozma</groupId>
     <artifactId>core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
     <name>nozma</name>
     <description>nozma</description>
     <url/>
@@ -111,29 +112,8 @@
         </dependency>
     </dependencies>
 
-<!--    <profiles>-->
-<!--        <profile>-->
-<!--            <id>local</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties/>-->
-<!--                <spring.profiles.active>local</spring.profiles.active>-->
-<!--            <properties/>-->
-<!--        </profile>-->
-
-<!--        <profile>-->
-<!--            <id>dev</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties/>-->
-<!--                <spring.profiles.active>local</spring.profiles.active>-->
-<!--            <properties/>-->
-<!--        </profile>-->
-
-<!--    </profiles>-->
     <build>
+        <finalName>nozma</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
