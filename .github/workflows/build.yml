@@ -32,8 +32,7 @@ jobs:
                     java-version: '17'
                     distribution: 'adopt'
 
-            -   name: Clean and install Maven
-                run: mvn clean install
+
 
     build-and-push-images:
         name: Build and push images to ECR
@@ -43,6 +42,9 @@ jobs:
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v2
+
+            -   name: Clean and install Maven
+                run: mvn clean install
 
             -   name: Configure AWS credentials using OIDC
                 uses: aws-actions/configure-aws-credentials@v1
