@@ -6,7 +6,7 @@ on:
         branches: [ master, develop ]
 
 permissions:
-    id-token: write   # This is required for requesting the JWT
+    id-token: write
     contents: read
 
 jobs:
@@ -55,8 +55,6 @@ jobs:
                     # Build a docker container and push it to ECR 
                     echo $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
                     
-                    docker build -t nozma-be:$IMAGE_TAG -f Dockerfile .
-                    docker tag nozma-be:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-                    
+                    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
                     echo "Pushing image to ECR..."
                     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
