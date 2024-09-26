@@ -57,3 +57,33 @@ jobs:
                     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
                     echo "Pushing image to ECR..."
                     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+            -   name: SSH into EC2 and run Docker container
+                env:
+                    PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }} # Add your EC2 private key as a secret
+                    EC2_HOST: ${{ secrets.EC2_HOST }}           # The public IP or DNS of your EC2 instance
+                    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                    ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+
+                    DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+                    DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+                    DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+
+                    IMAGE_TAG: latest
+                run: |
+                    echo "$PRIVATE_KEY" > ec2_key.pem
+                    chmod 600 ec2_key.pem
+                    ssh -i ec2_key.pem ec2-user@$EC2_HOST << 'EOF'
+                      # Install Docker if it's not already installed
+                      if ! command -v docker &> /dev/null; then
+                        sudo yum update -y
+                        sudo amazon-linux-extras install docker -y
+                        sudo service docker start
+                        sudo usermod -a -G docker ec2-user
+                      fi
+                    
+                      # Pull the latest image from ECR and run the container
+                      docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                      docker run -d -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -e "DATABASE_HOST=$DATABASE_HOST" 
+                    -e "DATABASE_USERNAME=$DATABASE_USERNAME" -e "DATABASE_PASSWORD=$DATABASE_PASSWORD"
+                    EOF
