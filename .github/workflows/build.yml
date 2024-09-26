@@ -63,7 +63,6 @@ jobs:
                     EC2_HOST: ${{ secrets.EC2_HOST }}           # The public IP or DNS of your EC2 instance
                     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                     ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-
                     DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
                     DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
