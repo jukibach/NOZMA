@@ -46,6 +46,11 @@ jobs:
                 id: login-ecr
                 uses: aws-actions/amazon-ecr-login@v1
 
+            -   name: Check ECR Permissions
+                run: |
+                    aws ecr describe-repositories --region ap-southeast-1
+                    aws ecr get-login-password --region ap-southeast-1
+
             -   name: Build and Push Docker image to AWS ECR
                 env:
                     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
