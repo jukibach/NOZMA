@@ -44,7 +44,9 @@ jobs:
 
             -   name: Login to Amazon ECR
                 id: login-ecr
-                uses: aws-actions/amazon-ecr-login@v1
+                run: |
+                    aws ecr get-login-password --region ap-southeast-1 
+                    docker login --username AWS --password-stdin 637423483158.dkr.ecr.ap-southeast-1.amazonaws.com
 
             -   name: Check ECR Permissions
                 run: |
