@@ -60,7 +60,6 @@ jobs:
 
             -   name: SSH into EC2 and run Docker container
                 env:
-                    PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }} # Add your EC2 private key as a secret
                     EC2_HOST: ${{ secrets.EC2_HOST }}           # The public IP or DNS of your EC2 instance
                     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                     ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
@@ -68,7 +67,6 @@ jobs:
                     DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
                     DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-
                     IMAGE_TAG: latest
                 run: |
                       # Install Docker if it's not already installed
