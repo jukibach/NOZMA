@@ -1,9 +1,9 @@
 name: Build a JAR in spring boot using springboot and push it to ECR
 on:
     push:
-        branches: [ main ]
+        branches: [ master, develop ]
     pull_request:
-        branches: [ main ]
+        branches: [ master, develop ]
 
 jobs:
     build-and-push-images:
