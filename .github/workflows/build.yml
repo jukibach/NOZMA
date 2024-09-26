@@ -37,7 +37,7 @@ jobs:
                 run: mvn clean install
 
             -   name: Configure AWS credentials using OIDC
-                uses: aws-actions/configure-aws-credentials@v1
+                uses: aws-actions/configure-aws-credentials@v1.7.0
                 with:
                     role-to-assume: ${{ secrets.AWS_ROLE }}
                     aws-region: ap-southeast-1
