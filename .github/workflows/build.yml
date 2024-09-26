@@ -11,7 +11,7 @@ permissions:
 
 jobs:
     clean-and-install-maven:
-        name: Build and push images to ECR
+        name: Maven clean install
         runs-on: ubuntu-latest
 
         steps:
@@ -38,7 +38,8 @@ jobs:
     build-and-push-images:
         name: Build and push images to ECR
         runs-on: ubuntu-latest
-
+        needs:
+            - clean-and-install-maven
         steps:
             -   name: Configure AWS credentials using OIDC
                 uses: aws-actions/configure-aws-credentials@v1
