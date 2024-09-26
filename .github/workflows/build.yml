@@ -77,6 +77,5 @@ jobs:
                     
                     # Pull the latest image from ECR and run the container
                     docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-                    docker run -d -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -e "DATABASE_HOST=$DATABASE_HOST" 
-                    -e "DATABASE_USERNAME=$DATABASE_USERNAME" -e "DATABASE_PASSWORD=$DATABASE_PASSWORD"
+                    docker run -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -e DATABASE_HOST=$DATABASE_HOST -e DATABASE_USERNAME=$DATABASE_USERNAME -e DATABASE_PASSWORD=$DATABASE_PASSWORD
                     EOF
