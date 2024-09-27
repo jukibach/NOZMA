@@ -71,8 +71,7 @@ jobs:
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
                     IMAGE_TAG: latest
                 run: |
-                    
-                    ssh -i "private_key.pem" ec2-user@ec2-47-129-47-192.ap-southeast-1.compute.amazonaws.com
+                    ssh -i "private_key.pem" ec2-user@ec2-18-140-67-145.ap-southeast-1.compute.amazonaws.com
                     
                     # Pull the latest image from ECR and run the container
                     docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
