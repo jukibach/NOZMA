@@ -12,7 +12,7 @@ permissions:
 jobs:
     build-and-push-images:
         name: Build and push images to ECR
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
 
         steps:
             -   name: Checkout code
