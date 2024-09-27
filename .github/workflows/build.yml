@@ -58,6 +58,11 @@ jobs:
                     echo "Pushing image to ECR..."
                     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+            -   name: Setup SSH key
+                run: |
+                    echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+                    chmod 600 private_key.pem
+
             -   name: SSH and deploy Docker container
                 uses: appleboy/ssh-action@v0.1.2
                 env:
@@ -68,11 +73,12 @@ jobs:
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
                     IMAGE_TAG: latest
                 with:
-                    host: ${{ secrets.EC2_HOST }}
-                    key: ${{ secrets.EC2_SSH_KEY }}
-                    username: ${{ secrets.EC2_USER }}
+#                    host: ${{ secrets.EC2_HOST }}
+#                    key: ${{ secrets.EC2_SSH_KEY }}
+#                    username: ${{ secrets.EC2_USER }}
                     script: |
                         # Pull the latest image from ECR and run the container
+                        ssh -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
                         docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
                         docker stop $ECR_REGISTRY/$ECR_REPOSITORY || true
                         docker rm $ECR_REGISTRY/$ECR_REPOSITORY || true
