@@ -58,16 +58,6 @@ jobs:
                     echo "Pushing image to ECR..."
                     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-            -   name: Install Docker
-                run: |
-                    # Install Docker if it's not already installed
-                    if ! command -v docker &> /dev/null; then
-                      sudo yum update -y
-                      sudo amazon-linux-extras install docker -y
-                      sudo service docker start
-                      sudo usermod -a -G docker ec2-user
-                    fi
-
             -   name: SSH and deploy Docker container
                 uses: appleboy/ssh-action@v0.1.2
                 env:
