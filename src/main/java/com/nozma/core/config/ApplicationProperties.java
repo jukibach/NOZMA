@@ -17,9 +17,6 @@ public class ApplicationProperties {
     @Value("${spring.profiles.active:Unknown}")
     private String activeProfile;
     
-    @Value("${server.address}")
-    private String address;
-    
     @Value("${server.port}")
     private int port;
     
