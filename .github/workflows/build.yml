@@ -64,7 +64,6 @@ jobs:
                     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                     ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
                     DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-                    username: ${{ secrets.EC2_USER }}
                     DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
                     DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
                     IMAGE_TAG: latest
