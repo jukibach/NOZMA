@@ -46,7 +46,7 @@ jobs:
                 run: |
                     ssh -i "private_key.pem" $EC2_USER@$EC2_HOST
                     # Pull the latest image from ECR and run the container
-                    docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+                    docker pull 637423483158.dkr.ecr.ap-southeast-1.amazonaws.com/nozma:latest
                     docker stop $ECR_REPOSITORY || true
                     docker rm $ECR_REPOSITORY || true
                     docker run -d --name $ECR_REPOSITORY \
