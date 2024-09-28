@@ -63,7 +63,7 @@ jobs:
         name: Deploy the BE application on EC2 using Docker
         if: |
             always() &&
-            build-and-push-images.result == 'success
+            build-and-push-images.result == 'success'
         runs-on: self-hosted
         steps:
             -   name: Checkout Code
