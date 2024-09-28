@@ -10,11 +10,14 @@
     </parent>
     <groupId>com.nozma</groupId>
     <artifactId>core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+
     <name>nozma</name>
     <description>nozma</description>
     <url/>
     <properties>
+        <start-class>com.nozma.core.NozmaApplication</start-class>
         <java.version>17</java.version>
     </properties>
     <dependencies>
@@ -111,29 +114,8 @@
         </dependency>
     </dependencies>
 
-<!--    <profiles>-->
-<!--        <profile>-->
-<!--            <id>local</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties/>-->
-<!--                <spring.profiles.active>local</spring.profiles.active>-->
-<!--            <properties/>-->
-<!--        </profile>-->
-
-<!--        <profile>-->
-<!--            <id>dev</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties/>-->
-<!--                <spring.profiles.active>local</spring.profiles.active>-->
-<!--            <properties/>-->
-<!--        </profile>-->
-
-<!--    </profiles>-->
     <build>
+        <finalName>nozma</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -142,6 +124,21 @@
                 <configuration>
 
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.nozma.core.NozmaApplication</mainClass>
+                    <layout>JAR</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
