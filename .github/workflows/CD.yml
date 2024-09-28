@@ -12,7 +12,9 @@ jobs:
     run-docker:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         name: Deploy the BE application on EC2 using Docker
+
         runs-on: self-hosted
+
         steps:
             -   name: Setup SSH key
                 run: |
