@@ -14,10 +14,15 @@ jobs:
     run-docker:
         name: Deploy the BE application on EC2 using Docker
         runs-on: self-hosted
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v2
 
+            -   name: Deploy
+                run: echo "Running deployment on branch ${{ github.ref }}"
+                    -
             -   name: Configure AWS credentials using OIDC
                 uses: aws-actions/configure-aws-credentials@v1
                 with:
