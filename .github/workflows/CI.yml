@@ -1,4 +1,4 @@
-name: Build a JAR in spring boot using springboot and push it to ECR
+name: CI workflow
 on:
     push:
         branches: [ master, develop ]
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
     build-and-push-images:
-        name: Build and push images to ECR
+        name: Build a JAR in spring boot using springboot and push it to ECR
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code

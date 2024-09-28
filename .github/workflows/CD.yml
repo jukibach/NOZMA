@@ -1,7 +1,7 @@
-name: Deploy the BE application on EC2 using Docker
+name: CD workflow
 on:
     workflow_run:
-        workflows: ["Build a JAR in spring boot using springboot and push it to ECR"]
+        workflows: [ "CI workflow" ]
         types:
             - completed
 permissions:
@@ -9,8 +9,9 @@ permissions:
     contents: read
 
 jobs:
-    build-and-push-images:
-        name: Run docker container on EC2
+    run-docker:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Deploy the BE application on EC2 using Docker
         runs-on: self-hosted
         steps:
             -   name: Setup SSH key
