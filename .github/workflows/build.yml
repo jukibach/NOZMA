@@ -59,10 +59,10 @@ jobs:
                     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     run-docker:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         needs: build-and-push-images
         name: Deploy the BE application on EC2 using Docker
         runs-on: self-hosted
-
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v2
