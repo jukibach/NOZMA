@@ -1,0 +1,41 @@
+name: Deploy the BE application on EC2 using Docker
+on:
+    workflow_run:
+        workflows: ["Build a JAR in spring boot using springboot and push it to ECR"]
+        types:
+            - completed
+permissions:
+    id-token: write
+    contents: read
+
+jobs:
+    build-and-push-images:
+        name: Run docker container on EC2
+        runs-on: self-hosted
+        steps:
+            -   name: Setup SSH key
+                run: |
+                    echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+                    chmod 600 private_key.pem
+
+            -   name: SSH and deploy Docker container
+                env:
+                    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                    ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+                    DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+                    DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+                    DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+                    EC2_HOST: ${{ secrets.EC2_HOST }}
+                    EC2_USER: ${{ secrets.EC2_USER }}
+                    IMAGE_TAG: latest
+                run: |
+                    ssh -i "private_key.pem" $EC2_USER@$EC2_HOST
+                    # Pull the latest image from ECR and run the container
+                    docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+                    docker stop $ECR_REPOSITORY || true
+                    docker rm $ECR_REPOSITORY || true
+                    docker run -d --name $ECR_REPOSITORY \
+                        -e DATABASE_HOST=$DATABASE_HOST \
+                        -e DATABASE_USERNAME=$DATABASE_USERNAME \
+                        -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
+                        -p 8080:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
