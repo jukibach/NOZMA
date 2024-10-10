@@ -1,14 +1,12 @@
 package com.nozma.core.dto.request;
 
-import java.util.List;
-import java.util.Map;
+import org.springframework.data.domain.Pageable;
 
 public record PagePayload(
-        List<String> visibleColumns,
-        Boolean wrapLine,
-        Integer pageSize,
-        Integer pageIndex,
-        Map<String, String> sortPreferences,
+        Pageable pageable,
         String searchName
 ) {
+    public PagePayload(Pageable pageable) {
+        this(pageable, null);
+    }
 }

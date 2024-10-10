@@ -1,0 +1,74 @@
+authentication:
+    lock-time-in-minute: 60
+    max-failed-attempts: 5
+    password:
+        generate:
+            number-of-digit-character: 3
+            number-of-lower-case-character: 3
+            number-of-special-character: 3
+            number-of-upper-case-character: 3
+    password-day-left-to-warning: 1
+    password-duration-in-days: 180
+    password-generated-length: 12
+    password-limit-usage: 5
+    password-special-characters: '!@#$%^&*()_+'
+    profile-token:
+        timeout: 90
+    refresh-token:
+        timeout: 120
+cors:
+    allowCredentials: false
+    allowExposedHeaders: Content-Disposition, Content-Type, Content-Length
+    allowHeaders: '*'
+    allowMethods: GET,PUT,POST,DELETE,OPTION,PATCH
+    allowOrigins: '*'
+key:
+    aws-kms-key-id: arn:aws:kms:ap-southeast-2:637423483158:key/3ffad98d-2526-4214-af87-41eeba090432
+    jwt-sign-private-key: private-key.pem
+    jwt-sign-public-key: public-key.pem
+    local-path: classpath:keys/
+logging:
+    level:
+        org:
+            hibernate:
+                cache: DEBUG
+management:
+    endpoint:
+        health:
+            show-details: always
+        loggers:
+            enabled: true
+    endpoints:
+        web:
+            exposure:
+                include: health, info
+    info:
+        git:
+            mode: simple
+mybatis:
+    config-location: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mappers/*.xml
+server:
+    port: 8080
+
+spring:
+    application:
+        name: user-service
+    aws:
+        access-key: aaaaaaa
+        secret-key: aaaaaaa
+    datasource:
+        password: ${DATABASE_PASSWORD:123456}
+        url: jdbc:postgresql://${DATABASE_HOST:localhost}:5432/nozma
+        username: ${DATABASE_USERNAME:postgres}
+    flyway:
+        baseline-on-migrate: true
+        enabled: true
+        locations: classpath:db/migration
+    jpa:
+        hibernate:
+            ddl-auto: none
+        properties:
+            hibernate.cache.use_second_level_cache: true
+            hibernate.cache.use_query_cache: false
+            hibernate.generate_statistics: false

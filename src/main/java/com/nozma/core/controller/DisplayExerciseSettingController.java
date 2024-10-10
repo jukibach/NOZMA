@@ -25,8 +25,7 @@ public class DisplayExerciseSettingController {
     @PatchMapping(value = ApiURL.UPDATE_DISPLAY_EXERCISE_SETTING_BY_ID)
     public ResponseEntity<ApiResponse> updateDisplaySetting(@PathVariable("id") long accountId,
                                                             @RequestBody UpdateDisplaySettingPayload payload) {
-        displayExerciseSettingService.updateDisplaySetting(accountId,
-                payload);
+        displayExerciseSettingService.updateDisplaySetting(accountId, payload);
         return ResponseEntityUtil.createSuccessfulPatchResponse();
     }
 }

@@ -1,26 +1,25 @@
 package com.nozma.core.service.impl;
 
-import com.nozma.core.dto.projections.ExerciseColumnView;
+import com.nozma.core.constant.Constant;
+import com.nozma.core.dto.ExerciseRow;
 import com.nozma.core.dto.request.ExercisePagePayload;
 import com.nozma.core.dto.response.ExerciseColumnResponse;
+import com.nozma.core.dto.response.ExerciseRowResponse;
 import com.nozma.core.dto.response.ExerciseTableResponse;
 import com.nozma.core.entity.BaseDomain;
 import com.nozma.core.entity.exercises.DisplayExerciseSetting;
-import com.nozma.core.enums.ExerciseColumnEnum;
+import com.nozma.core.entity.exercises.ExerciseColumn;
 import com.nozma.core.enums.RecordStatus;
-import com.nozma.core.enums.StatusAndMessage;
-import com.nozma.core.exception.BusinessException;
 import com.nozma.core.mapper.ExerciseMapper;
 import com.nozma.core.mybatis.mapper.MybatisExerciseMapper;
 import com.nozma.core.repository.DisplayExerciseSettingRepository;
 import com.nozma.core.repository.ExerciseColumnRepository;
 import com.nozma.core.service.ExerciseService;
-import com.nozma.core.util.CommonUtil;
 import com.nozma.core.util.SecurityUtil;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -39,125 +39,167 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseMapper exerciseMapper;
     
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ExerciseTableResponse getExercises(ExercisePagePayload exercisePagePayload) throws IllegalAccessException {
         // TODO:
         //  paging
-        //  store setting (user, pageId)
         //  Exercises created by users
         
-        // If user is logged in
-        if (CommonUtil.isNullOrEmpty(SecurityUtil.getCurrentAccountId()))
-            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
+        Optional<DisplayExerciseSetting> displayExerciseSettings = displayExerciseSettingRepository
+                .findOneByAccountIdAndCode(
+                        SecurityUtil.getCurrentAccountId(), "exercises"
+                );
         
-        var displayExerciseSettings = displayExerciseSettingRepository.findByAccountIdAndCode(
-                SecurityUtil.getCurrentAccountId(), "exercises");
+        List<ExerciseColumn> columns = exerciseColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
         
-        List<ExerciseColumnView> columns = exerciseColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
-        if (CommonUtil.isNullOrEmpty(displayExerciseSettings))
-            displayExerciseSettings = DisplayExerciseSetting.builder()
-                    .accountId(SecurityUtil.getCurrentAccountId())
-                    .code("exercises")
-                    .name(true)
-                    .bodyRegion(true)
-                    .laterality(true)
-                    .majorMuscle(true)
-                    .mechanics(true)
-                    .equipments(true)
-                    .exerciseTypes(true)
-                    .muscleGroup(true)
-                    .movementPatterns(true)
-                    .description(true)
-                    .build();
-        
-        if (RecordStatus.INACTIVE.equals(displayExerciseSettings.getStatus()))
-            displayExerciseSettings.setStatus(RecordStatus.ACTIVE);
+        displayExerciseSettings = Optional.of(displayExerciseSettings.orElse(
+                DisplayExerciseSetting
+                        .builder()
+                        .accountId(SecurityUtil.getCurrentAccountId())
+                        .code("exercises")
+                        .name(true)
+                        .bodyRegion(true)
+                        .laterality(true)
+                        .majorMuscle(true)
+                        .mechanics(true)
+                        .equipments(true)
+                        .exerciseTypes(true)
+                        .muscleGroup(true)
+                        .movementPatterns(true)
+                        .description(true)
+                        .build()));
         
         // IF there are no changes, does it execute this code ??
-        displayExerciseSettings = displayExerciseSettingRepository.save(displayExerciseSettings);
+        displayExerciseSettings = Optional.of(displayExerciseSettingRepository.save(displayExerciseSettings.get()));
         
-        List<ExerciseColumnResponse> exerciseColumnResponses = setColumnResponses(displayExerciseSettings, columns);
+        List<ExerciseColumnResponse> exerciseColumnResponses = setColumnResponses(displayExerciseSettings.get(),
+                columns);
         
-        var visibleColumnCodes = exerciseColumnResponses.stream().filter(ExerciseColumnResponse::visible)
-                .map(ExerciseColumnResponse::code).toList();
+        List<String> visibleColumnCodes = exerciseColumnResponses
+                .stream()
+                .filter(ExerciseColumnResponse::visible)
+                .map(ExerciseColumnResponse::code)
+                .toList();
         
-        var exerciseRows = mybatisExerciseMapper.selectDynamicFields(visibleColumnCodes, exercisePagePayload,
-                List.of("SYSTEM", SecurityUtil.getCurrentAccountName()));
-        var totalRowsCount = mybatisExerciseMapper.countExerciseRows(visibleColumnCodes, exercisePagePayload,
-                List.of("SYSTEM", SecurityUtil.getCurrentAccountName()));
+        List<ExerciseRow> exerciseRows = mybatisExerciseMapper.selectDynamicFields(
+                visibleColumnCodes,
+                exercisePagePayload,
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName())
+        );
         
-        var exerciseRowResponses = exerciseRows.stream().map(exerciseMapper::exerciseRowToResponse).toList();
+        int totalRowsCount = mybatisExerciseMapper.countExerciseRows(
+                visibleColumnCodes,
+                exercisePagePayload,
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName())
+        );
+        
+        List<ExerciseRowResponse> exerciseRowResponses = exerciseRows
+                .stream()
+                .map(exerciseMapper::exerciseRowToResponse)
+                .toList();
         
         return new ExerciseTableResponse(exerciseColumnResponses, exerciseRowResponses, totalRowsCount);
     }
     
-    private List<ExerciseColumnResponse> setColumnResponses(DisplayExerciseSetting displayExerciseSetting,
-                                                            List<ExerciseColumnView> columns)
-            throws IllegalAccessException {
-        List<ExerciseColumnResponse> exerciseColumnResponseList = new ArrayList<>();
-        List<String> exclusiveFields = List.of(
-                DisplayExerciseSetting.Fields.id,
-                DisplayExerciseSetting.Fields.accountId,
-                DisplayExerciseSetting.Fields.code,
-                BaseDomain.Fields.status,
-                BaseDomain.Fields.createdDate,
-                BaseDomain.Fields.createdBy,
-                BaseDomain.Fields.updatedDate,
-                BaseDomain.Fields.updatedBy
-        );
-        List<Field> fields = Arrays.stream(displayExerciseSetting.getClass().getDeclaredFields())
-                .filter(field -> !exclusiveFields.contains(field.getName()))
-                .toList();
+    private List<ExerciseColumnResponse> setColumnResponses(
+            DisplayExerciseSetting displayExerciseSetting,
+            List<ExerciseColumn> columns
+    ) throws IllegalAccessException {
         
-        for (Field field : fields) {
-            ReflectionUtils.makeAccessible(field);
-            // Get the field's name and value
-            boolean value = (Boolean) field.get(displayExerciseSetting);
-            ExerciseColumnView exerciseColumnView = columns.stream()
-                    .filter(column -> column.getCode().equals(field.getName()))
-                    .findFirst()
-                    .orElseThrow();
-            exerciseColumnResponseList.add(new ExerciseColumnResponse(field.getName(), exerciseColumnView.getName()
-                    , exerciseColumnView.getType(), value));
+        try {
+            List<ExerciseColumnResponse> exerciseColumnResponseList = new ArrayList<>();
+            
+            List<String> exclusiveFields = List.of(
+                    DisplayExerciseSetting.Fields.id,
+                    DisplayExerciseSetting.Fields.accountId,
+                    DisplayExerciseSetting.Fields.code,
+                    BaseDomain.Fields.status,
+                    BaseDomain.Fields.createdDate,
+                    BaseDomain.Fields.createdBy,
+                    BaseDomain.Fields.updatedDate,
+                    BaseDomain.Fields.updatedBy,
+                    "serialVersionUID"
+            );
+            
+            List<Field> fields = Arrays.stream(displayExerciseSetting.getClass().getDeclaredFields())
+                    .filter(
+                            field -> !exclusiveFields.contains(field.getName())
+                    )
+                    .toList();
+            
+            for (Field field : fields) {
+                ReflectionUtils.makeAccessible(field);
+                
+                // Get the field's name and value
+                boolean value;
+                
+                value = (Boolean) field.get(displayExerciseSetting);
+                
+                ExerciseColumn exerciseColumn = columns
+                        .stream()
+                        .filter(
+                                column -> column.getCode().equals(field.getName())
+                        )
+                        .findFirst()
+                        .orElseThrow();
+                
+                exerciseColumnResponseList.add(
+                        new ExerciseColumnResponse(
+                                field.getName(),
+                                exerciseColumn.getName(),
+                                exerciseColumn.getType(),
+                                value)
+                );
+            }
+            return exerciseColumnResponseList;
+            
+        } catch (IllegalAccessException e) {
+            throw new IllegalAccessException(e.getMessage());
         }
-        return exerciseColumnResponseList;
     }
     
     @Override
     public ExerciseTableResponse getExercisesForGuest(ExercisePagePayload exercisePagePayload) {
-        var columns = exerciseColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
-        var visibleColumnCodes = columns.stream().map(ExerciseColumnView::getCode).toList();
+        List<ExerciseColumn> columns = exerciseColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
         
-        List<String> orderByClauses = new ArrayList<>();
-//        if (CommonUtil.isNonNullOrNonEmpty(sort)) {
-//            for (String sortParam : sort) {
-//                String[] sortDetails = sortParam.split(",");
-//                String sortBy = sortDetails.length > 0
-//                        ? ExerciseColumnEnum.valueOf(sortDetails[0]).getField()
-//                        : ExerciseColumnEnum.EXERCISE.getField();
-//
-//                String direction = sortDetails.length > 1 && "desc".equalsIgnoreCase(sortDetails[1])
-//                        ? "DESC" : "ASC";
-//                orderByClauses.add(sortBy.concat(direction));
-//            }
-//        }
-//
-//        // Join the clauses to create the final orderBy string
-//        String orderBy = CommonUtil.isNonNullOrNonEmpty(orderByClauses)
-//                ? String.join(", ", orderByClauses)
-//                : null;
+        List<String> visibleColumnCodes = columns
+                .stream()
+                .map(ExerciseColumn::getCode)
+                .toList();
         
-        var exerciseRows = mybatisExerciseMapper.selectDynamicFields(visibleColumnCodes, exercisePagePayload,
-                Collections.singletonList("SYSTEM"));
-        var totalRowsCount = mybatisExerciseMapper.countExerciseRows(visibleColumnCodes, exercisePagePayload,
-                Collections.singletonList("SYSTEM"));
+        List<ExerciseRow> exerciseRows = mybatisExerciseMapper
+                .selectDynamicFields(
+                        visibleColumnCodes,
+                        exercisePagePayload,
+                        Collections.singletonList(Constant.SYSTEM_AUDITOR)
+                );
+        
+        int totalRowsCount = mybatisExerciseMapper
+                .countExerciseRows(
+                        visibleColumnCodes,
+                        exercisePagePayload,
+                        Collections.singletonList(Constant.SYSTEM_AUDITOR)
+                );
+        
         List<ExerciseColumnResponse> exerciseColumnResponses = setColumnResponsesForGuest(columns);
-        var exerciseRowResponses = exerciseRows.stream().map(exerciseMapper::exerciseRowToResponse).toList();
+        
+        List<ExerciseRowResponse> exerciseRowResponses = exerciseRows
+                .stream()
+                .map(exerciseMapper::exerciseRowToResponse)
+                .toList();
+        
         return new ExerciseTableResponse(exerciseColumnResponses, exerciseRowResponses, totalRowsCount);
     }
     
-    private List<ExerciseColumnResponse> setColumnResponsesForGuest(List<ExerciseColumnView> columns) {
-        return columns.stream().map(columnView -> new ExerciseColumnResponse(columnView.getCode(), columnView.getName(),
-                columnView.getType())).toList();
+    private List<ExerciseColumnResponse> setColumnResponsesForGuest(List<ExerciseColumn> columns) {
+        return columns
+                .stream()
+                .map(
+                        column ->
+                                new ExerciseColumnResponse(
+                                        column.getCode(), column.getName(), column.getType()
+                                )
+                )
+                .toList();
     }
 }

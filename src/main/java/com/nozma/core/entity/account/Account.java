@@ -1,13 +1,13 @@
 package com.nozma.core.entity.account;
 
 import com.nozma.core.entity.BaseDomain;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -16,8 +16,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -30,7 +34,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class Account extends BaseDomain {
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Account extends BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = 5616098585400912157L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,13 +59,14 @@ public class Account extends BaseDomain {
     private LocalDate toDate;
     
     private boolean isPasswordGenerated;
-
-    @ManyToOne
-    @JoinColumn(name = "roleId", nullable = false)
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "id")
+    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     private Role role;
     
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private User user;
-    
 }

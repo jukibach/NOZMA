@@ -10,6 +10,12 @@
         <result column="exercise_body_region" property="bodyRegion"/>
         <result column="exercise_laterality" property="laterality"/>
 
+        <result column="created_date" property="createdDate"/>
+        <result column="updated_date" property="updatedDate"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+
+
         <result property="exerciseTypesString" column="types_name"/>
         <result property="equipmentsString" column="equipments_name"/>
         <result property="movementPatternsString" column="movement_patterns_name"/>
@@ -131,10 +137,22 @@
         <if test="exerciseColumnNames.contains('equipments')">
             , STRING_AGG(DISTINCT equipments.name, ',') AS equipments_name
         </if>
+
+        , exercises.created_date AS created_date
+        , exercises.updated_date AS updated_date
+        , exercises.created_by AS created_by
+        , exercises.updated_by AS updated_by
     </sql>
 
     <sql id="groupByStatements">
-        GROUP BY exercises.id, exercises.name
+        GROUP BY
+        exercises.id
+        , exercises.name
+        , exercises.created_date
+        , exercises.updated_date
+        , exercises.created_by
+        , exercises.updated_by
+
         <if test="exerciseColumnNames.contains('bodyRegion')">
             , body_regions.name
         </if>
@@ -201,9 +219,9 @@
 
         WITH total_rows AS (
         SELECT 1
-        <include refid="joinStatements"/>
-        <include refid="whereConditions"/>
-        <include refid="groupByStatements"/>
+            <include refid="joinStatements"/>
+            <include refid="whereConditions"/>
+            <include refid="groupByStatements"/>
         )
         SELECT COUNT(*) FROM total_rows
 

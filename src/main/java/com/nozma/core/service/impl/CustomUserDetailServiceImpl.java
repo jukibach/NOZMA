@@ -19,9 +19,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -36,34 +38,44 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
     private final LoginHistoryService loginHistoryService;
     
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String accountName) throws UsernameNotFoundException {
-        var account = accountRepository.findByAccountName(accountName);
+        var account = accountRepository.findOneByAccountName(accountName)
+                .orElseThrow(() ->
+                        new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST)
+        );
         
-        if (CommonUtil.isNullOrEmpty(account)) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
-        }
         if (account.isLocked()) {
             loginHistoryService.unlockWhenExpired(account);
             throw new LockedException(Strings.EMPTY);
         }
+        
         if (RecordStatus.INACTIVE.equals(account.getStatus())) {
             throw new DisabledException(Strings.EMPTY);
         }
+        
         var passwordExpiredDate = account.getToDate();
-        var passwordDayLeft = CommonUtil.isNullOrEmpty(passwordExpiredDate) ? 0L :
-                DateUtil.getCurrentDate().until(passwordExpiredDate, ChronoUnit.DAYS) + 1;
+        var passwordDayLeft = Objects.isNull(passwordExpiredDate)
+                ? 0L
+                : DateUtil.getCurrentDate().until(passwordExpiredDate, ChronoUnit.DAYS) + 1;
+        
         if (passwordExpiredDate.isBefore(DateUtil.getCurrentDate()) || passwordDayLeft == 0) {
             throw new CredentialsExpiredException(Strings.EMPTY);
         }
-        var user = userRepository.findById(account.getUser().getId());
-        if (user.isEmpty()) {
+        
+        if (Objects.isNull(account.getUser())) {
             throw new BusinessException(StatusAndMessage.USER_DOES_NOT_EXIST);
         }
         
         // get privileges
         List<String> privileges = rolePrivilegeRepository.findPrivilegeNamesByRoleId(account.getRole().getId());
         
-        return new JwtAccountDetails(account, user.get(), account.getRole().getName(), privileges);
+        return new JwtAccountDetails(
+                account,
+                account.getUser(),
+                account.getRole().getName(),
+                privileges
+        );
     }
     
 }

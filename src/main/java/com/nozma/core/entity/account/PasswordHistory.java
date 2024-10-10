@@ -13,8 +13,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
@@ -25,7 +29,12 @@ import java.time.LocalDate;
 @Entity(name = "passwordHistories")
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class PasswordHistory extends BaseDomain {
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class PasswordHistory extends BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

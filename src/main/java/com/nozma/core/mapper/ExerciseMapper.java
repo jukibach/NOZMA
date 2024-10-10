@@ -11,7 +11,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ExerciseMapper {
-    List<ExerciseColumnResponse> viewToResponse(List<ExerciseColumnView> column);
     
     ExerciseRowResponse exerciseRowToResponse(ExerciseRow exerciseRow);
     

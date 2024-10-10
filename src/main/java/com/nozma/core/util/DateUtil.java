@@ -4,12 +4,14 @@ package com.nozma.core.util;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class DateUtil {
     
     private DateUtil() {}
     
-    private static final String YEAR_MONTH_HOUR_MINUTE_SECOND = "yyyy-MM-dd HH:mm:ss";
+    public static final String YEAR_MONTH_HOUR_MINUTE_SECOND = "yyyy-MM-dd HH:mm:ss";
+    
     public static DateTimeFormatter formatYearMonthHourMinuteSecond() {
         return DateTimeFormatter.ofPattern(YEAR_MONTH_HOUR_MINUTE_SECOND);
     }
@@ -28,4 +30,9 @@ public class DateUtil {
     public static LocalDate plusDay(LocalDate fromDate, int days) {
         return LocalDate.from(fromDate).plusDays(days);
     }
+    
+    public static String formatDateTime(LocalDateTime myDate, String format) {
+        return DateTimeFormatter.ofPattern(format, Locale.ENGLISH).format(myDate);
+    }
+    
 }

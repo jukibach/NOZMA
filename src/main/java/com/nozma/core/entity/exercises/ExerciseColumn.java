@@ -12,7 +12,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +27,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "m_exercise_columns", schema = "s_workout")
 @Entity(name = "ExerciseColumns")
 @EntityListeners(AuditingEntityListener.class)
-public class ExerciseColumn extends BaseDomain {
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+public class ExerciseColumn extends BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = 1982241863469943336L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

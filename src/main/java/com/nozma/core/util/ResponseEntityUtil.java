@@ -37,8 +37,12 @@ public class ResponseEntityUtil {
     
     public static ResponseEntity<ApiResponse> createFailureResponseForInvalidFields(BusinessException exception,
                                                                     MessageSource messageSource) {
-        String message = messageSource.getMessage(exception.getMessage(), new Object[]{exception.getResult().toString()},
-                LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage(
+                exception.getMessage(),
+                new Object[]{exception.getResult().toString()},
+                LocaleContextHolder.getLocale()
+        );
+        
         return new ResponseEntity<>(ApiResponse.badRequest(message, null, exception.getMessage()),
                 HttpStatus.BAD_REQUEST);
     }

@@ -90,13 +90,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     accountDetails.getUserRole(), accountDetails.getPrivileges());
             
         } catch (Exception exception) {
-            var account = accountRepository.findByAccountName(request.getAccountName());
-            if (CommonUtil.isNonNullOrNonEmpty(account)) {
+            var account = accountRepository.findOneByAccountName(request.getAccountName());
+            
+            if (account.isPresent()) {
                 if (exception instanceof BadCredentialsException) {
-                    loginHistoryService.lockWhenMultipleFailedAttempts(request, account);
+                    loginHistoryService.lockWhenMultipleFailedAttempts(request, account.get());
                 }
                 else if (exception instanceof LockedException) {
-                    loginHistoryService.unlockWhenExpired(account);
+                    loginHistoryService.unlockWhenExpired(account.get());
                 }
             }
             throw exception;

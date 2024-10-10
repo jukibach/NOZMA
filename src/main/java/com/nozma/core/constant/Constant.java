@@ -27,4 +27,6 @@ public class Constant {
     
     public static final String KEY_RSA_ALGORITHM = "RSA";
     
+    public static final String SYSTEM_AUDITOR = "SYSTEM";
+    
 }

@@ -2,6 +2,8 @@ package com.nozma.core.util;
 
 import com.nozma.core.entity.account.Account;
 import com.nozma.core.entity.account.JwtAccountDetails;
+import com.nozma.core.enums.StatusAndMessage;
+import com.nozma.core.exception.BusinessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +34,7 @@ public class SecurityUtil {
     public static Long getCurrentAccountId() {
         var principal = (JwtAccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (CommonUtil.isNullOrEmpty(principal)) {
-            return null;
+            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
         }
         return principal.getAccountId();
     }
@@ -40,7 +42,7 @@ public class SecurityUtil {
     public static String getCurrentRole() {
         var principal = (JwtAccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (CommonUtil.isNullOrEmpty(principal)) {
-            return null;
+            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
         }
         return principal.getUserRole();
     }

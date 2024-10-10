@@ -7,14 +7,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,17 +31,26 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @Setter
-public class User extends BaseDomain {
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class User extends BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = -2864951190387378774L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Size(max = 50)
     private String firstName;
     
+    @Size(max = 50)
     private String middleName;
     
+    @Size(max = 50)
     private String lastName;
     
+    @Size(max = 12)
     private String phoneNumber;
     
     private String birthdate;
@@ -51,5 +66,9 @@ public class User extends BaseDomain {
             )
             """)
     private Integer age;
+    
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
     
 }

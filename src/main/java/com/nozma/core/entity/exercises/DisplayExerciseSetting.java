@@ -15,6 +15,9 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -24,7 +27,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class DisplayExerciseSetting extends BaseDomain {
+public class DisplayExerciseSetting extends BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = 2172417891285816089L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

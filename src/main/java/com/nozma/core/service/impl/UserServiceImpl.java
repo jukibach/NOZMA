@@ -41,18 +41,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUser(UpdateAccountPayload payload, Long userId) {
         var user = userRepository.findByIdAndStatus(userId, RecordStatus.ACTIVE);
-
-        if (CommonUtil.isNonNullOrNonEmpty(payload.getBirthdate())) {
-            user.setFirstName(payload.getFirstName());
-        }
-        
-        if (CommonUtil.isNonNullOrNonEmpty(payload.getBirthdate())) {
-            user.setLastName(payload.getLastName());
-        }
-        
-        if (CommonUtil.isNonNullOrNonEmpty(payload.getBirthdate())) {
-            user.setBirthdate(payload.getBirthdate());
-        }
         
         userRepository.save(user);
     }

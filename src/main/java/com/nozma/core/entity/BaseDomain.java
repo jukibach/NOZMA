@@ -13,6 +13,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +22,11 @@ import java.time.LocalDateTime;
 @ToString
 @MappedSuperclass
 @FieldNameConstants
-public class BaseDomain {
+public abstract class BaseDomain implements Serializable {
+    
+    @Serial
+    private static final long serialVersionUID = 6528439398804294328L;
+    
     @Enumerated(EnumType.STRING)
     private RecordStatus status = RecordStatus.ACTIVE;
     @CreatedDate

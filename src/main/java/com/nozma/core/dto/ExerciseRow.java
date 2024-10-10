@@ -1,11 +1,17 @@
 package com.nozma.core.dto;
 
+import com.nozma.core.enums.RecordStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +43,16 @@ public class ExerciseRow {
     private List<String> movementPatterns;
     @Setter
     private List<String> muscleGroup;
+    @Setter
+    private RecordStatus status;
+    @Setter
+    private String createdDate;
+    @Setter
+    private String updatedDate;
+    @Setter
+    private String createdBy;
+    @Setter
+    private String updatedBy;
     
     private String exerciseTypesString;
     private String equipmentsString;
