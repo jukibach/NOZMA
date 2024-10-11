@@ -9,18 +9,27 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Setter
 @AllArgsConstructor
 public class ExercisePagePayload {
-    @Getter
+    
     private Integer pageSize;
-    @Getter
     private Integer pageIndex;
     @Getter
     private String searchName;
+    
     @Getter
     private String[] sort;
+    
+    public Integer getPageSize() {
+        return Optional.ofNullable(pageSize).orElse(20);
+    }
+    
+    public Integer getPageIndex() {
+        return Optional.ofNullable(pageIndex).orElse(0) * getPageSize();
+    }
     
     private String sortOrders;
     
@@ -31,20 +40,24 @@ public class ExercisePagePayload {
                 String[] sortDetails = sortParam.split(" ");
                 String sortBy = sortDetails.length > 0
                         ? Arrays.stream(ExerciseColumnEnum.values())
-                        .filter(exerciseColumnEnum -> exerciseColumnEnum.getCode().equals(sortDetails[0])).findFirst()
-                        .orElseThrow().getField()
+                        .filter(exerciseColumnEnum -> exerciseColumnEnum.getCode().equals(sortDetails[0]))
+                        .findFirst()
+                        .orElseThrow()
+                        .getField()
                         : ExerciseColumnEnum.EXERCISE.getField();
                 
                 String direction = sortDetails.length > 1 && "desc".equalsIgnoreCase(sortDetails[1])
-                        ? "DESC" : "ASC";
+                        ? "DESC"
+                        : "ASC";
                 orderByClauses.add("%s %s".formatted(sortBy, direction));
             }
         }
         
         // Join the clauses to create the final orderBy string
-        String orderBy = CommonUtil.isNonNullOrNonEmpty(orderByClauses)
-                ? String.join(", ", orderByClauses)
-                : null;
+        String orderBy = Optional.of(orderByClauses)
+                .filter(CommonUtil::isNonNullOrNonEmpty)
+                .map(clauses -> String.join(", ", clauses))
+                .orElse(null);
         
         this.sortOrders = orderBy;
         return orderBy;
