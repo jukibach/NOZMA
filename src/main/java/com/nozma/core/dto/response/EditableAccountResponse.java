@@ -1,10 +1,11 @@
 package com.nozma.core.dto.response;
 
-public record AccountDetailResponse(
+public record EditableAccountResponse(
         Long accountId,
         String accountName,
         String email,
-        String fullName,
+        String firstName,
+        String lastName,
         String birthdate,
         String creationTime,
         String lastModified,

@@ -5,7 +5,8 @@ import java.util.List;
 public record AccountPageResponse(
         Integer pageSize,
         Integer pageIndex,
-        Integer totalRecords,
+        long totalRecords,
+        List<AccountColumnResponse> columns,
         List<AccountDetailResponse> response
 ) {
 }

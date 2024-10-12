@@ -1,12 +1,17 @@
 package com.nozma.core.service.impl;
 
 import com.nozma.core.dto.request.UpdateAccountPayload;
+import com.nozma.core.dto.response.AccountColumnResponse;
 import com.nozma.core.dto.response.AccountDetailResponse;
 import com.nozma.core.dto.response.AccountPageResponse;
+import com.nozma.core.dto.response.EditableAccountResponse;
 import com.nozma.core.entity.account.Account;
+import com.nozma.core.entity.account.AccountColumn;
 import com.nozma.core.enums.RecordStatus;
 import com.nozma.core.enums.StatusAndMessage;
 import com.nozma.core.exception.BusinessException;
+import com.nozma.core.projection.AccountDetail;
+import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.service.AccountService;
 import com.nozma.core.util.DateUtil;
@@ -14,17 +19,21 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 @Transactional
 public class AccountServiceImpl implements AccountService {
+    private final AccountColumnRepository accountColumnRepository;
     private final AccountRepository accountRepository;
     private final CacheManager cacheManager;
     
@@ -41,42 +50,58 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountPageResponse getAccountList(Pageable pageable, String searchName) {
         
-        var accountDetails = accountRepository.fetchAllByPaging(pageable, searchName);
+        Page<AccountDetail> accountDetails = accountRepository.fetchAllByPaging(pageable, searchName);
         
-        if (Objects.isNull(accountDetails)) {
+        if (accountDetails.isEmpty()) {
             throw new BusinessException("There are no account details!");
         }
+        
+        List<AccountColumn> accountColumns = accountColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
+        
+        Function<AccountDetail, AccountDetailResponse> convert = accountDetail ->
+                new AccountDetailResponse(
+                        accountDetail.getId(),
+                        accountDetail.getAccountName(),
+                        accountDetail.getEmail(),
+                        accountDetail.getUser().getFullName(),
+                        accountDetail.getUser().getBirthdate(),
+                        DateUtil.formatDateTime(
+                                accountDetail.getCreatedDate(),
+                                DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
+                        ),
+                        DateUtil.formatDateTime(
+                                accountDetail.getUpdatedDate(),
+                                DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
+                        ),
+                        accountDetail.getStatus(),
+                        accountDetail.getIsLocked() ? "YES" : "NO"
+                );
+        
+        Function<AccountColumn, AccountColumnResponse> convertToAccountColumnResponse =
+                accountColumnView -> new AccountColumnResponse(
+                accountColumnView.getCode(),
+                accountColumnView.getName(),
+                accountColumnView.getType()
+        );
         
         return new AccountPageResponse(
                 pageable.getPageSize(),
                 pageable.getPageNumber(),
-                accountDetails.getSize(),
+                accountDetails.getTotalElements(),
+                accountColumns
+                        .stream()
+                        .map(convertToAccountColumnResponse)
+                        .toList(),
                 accountDetails
                         .getContent()
                         .stream()
-                        .map(accountDetail ->
-                                new AccountDetailResponse(
-                                        accountDetail.getId(),
-                                        accountDetail.getAccountName(),
-                                        accountDetail.getEmail(),
-                                        accountDetail.getUser().getFullName(),
-                                        DateUtil.formatDateTime(
-                                                accountDetail.getCreatedDate(),
-                                                DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
-                                        ),
-                                        DateUtil.formatDateTime(
-                                                accountDetail.getUpdatedDate(),
-                                                DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
-                                        ),
-                                        accountDetail.getStatus(),
-                                        accountDetail.getIsLocked()
-                                ))
+                        .map(convert)
                         .toList()
         );
     }
     
     @Override
-    public AccountDetailResponse getAccountDetail(long accountId) {
+    public EditableAccountResponse getAccountDetail(long accountId) {
         
         var account = findAccountById(accountId);
         
@@ -88,15 +113,17 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
         }
         
-        return new AccountDetailResponse(
+        return new EditableAccountResponse(
                 accountId,
                 account.getAccountName(),
                 account.getEmail(),
-                account.getUser().getFullName(),
+                account.getUser().getFirstName(),
+                account.getUser().getLastName(),
+                account.getUser().getBirthdate(),
                 DateUtil.formatDateTime(account.getCreatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 DateUtil.formatDateTime(account.getUpdatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 account.getStatus().toString(),
-                account.isLocked()
+                account.isLocked() ? "YES" : "NO"
         );
     }
     
@@ -134,11 +161,12 @@ public class AccountServiceImpl implements AccountService {
                 accountId,
                 account.getAccountName(),
                 account.getEmail(),
-                account.getUser().getFirstName() + " " + account.getUser().getLastName(),
+                account.getUser().getFullName(),
+                account.getUser().getBirthdate(),
                 DateUtil.formatDateTime(account.getCreatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 DateUtil.formatDateTime(account.getUpdatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 account.getStatus().toString(),
-                account.isLocked()
+                account.isLocked() ? "YES" : "NO"
         );
         
     }

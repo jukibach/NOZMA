@@ -78,7 +78,6 @@ public class WebSecurity implements WebMvcConfigurer {
         return authenticationConfiguration.getAuthenticationManager();
     }
     
-    @Bean
     public DaoAuthenticationProvider authenticationProvider(CustomUserDetailServiceImpl customUserDetailServiceImpl) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(customUserDetailServiceImpl);

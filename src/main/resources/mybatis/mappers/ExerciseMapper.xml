@@ -22,6 +22,16 @@
         <result property="muscleGroupString" column="muscle_group_name"/>
     </resultMap>
 
+    <cache
+            eviction="LRU"
+            flushInterval="60000"
+            size="512"
+            readOnly="true"/>
+    <!-- Cache eviction policy: LRU (Least Recently Used), FIFO, etc. -->
+    <!-- Flush cache every 60 seconds -->
+    <!-- Cache size, number of objects stored -->
+    <!-- Make cache read-only for performance -->
+
     <sql id="selectExerciseTypes">
          (
              SELECT exercises_types.exercise_id,

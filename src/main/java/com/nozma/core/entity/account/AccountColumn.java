@@ -1,4 +1,4 @@
-package com.nozma.core.entity.exercises;
+package com.nozma.core.entity.account;
 
 import com.nozma.core.entity.BaseDomain;
 import jakarta.persistence.Entity;
@@ -20,17 +20,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Getter
-@Setter
-@Table(name = "m_exercise_columns", schema = "s_workout")
-@Entity(name = "ExerciseColumns")
+@Table(name = "m_account_columns", schema = "s_account")
+@Entity(name = "AccountColumns")
+@Immutable
 @EntityListeners(AuditingEntityListener.class)
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
-public class ExerciseColumn extends BaseDomain implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AccountColumn extends BaseDomain implements Serializable {
     
     @Serial
     private static final long serialVersionUID = 1982241863469943336L;
@@ -40,6 +39,5 @@ public class ExerciseColumn extends BaseDomain implements Serializable {
     private Integer id;
     private String name;
     private String code;
-    private String description;
     private String type;
 }

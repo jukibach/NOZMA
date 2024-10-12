@@ -1,11 +1,14 @@
 package com.nozma.core.config;
 
 import com.nozma.core.entity.account.Account;
+import com.nozma.core.entity.account.AccountColumn;
 import com.nozma.core.entity.account.PasswordHistory;
 import com.nozma.core.entity.account.Privilege;
 import com.nozma.core.entity.account.Role;
 import com.nozma.core.entity.account.RolePrivilege;
 import com.nozma.core.entity.account.User;
+import com.nozma.core.entity.exercises.ExerciseColumn;
+import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.repository.ExerciseColumnRepository;
 import com.nozma.core.repository.RolePrivilegeRepository;
@@ -47,6 +50,8 @@ public class CacheConfiguration {
         createCache(cacheManager, AccountRepository.ACCOUNT_BY_NAME, configuration);
         createCache(cacheManager, AccountRepository.ACCOUNT_BY_ID, configuration);
         
+        createCache(cacheManager, AccountColumnRepository.ALL_ACCOUNT_COLUMN, configuration);
+        
         createCache(cacheManager, RolePrivilegeRepository.PRIVILEGES_BY_ROLE_ID, configuration);
         createCache(cacheManager, ExerciseColumnRepository.EXERCISE_COLUMN_VIEW_BY_STATUS, configuration);
         
@@ -58,6 +63,8 @@ public class CacheConfiguration {
         createCache(cacheManager, Privilege.class.getName(), configuration);
         createCache(cacheManager, PasswordHistory.class.getName(), configuration);
         createCache(cacheManager, RolePrivilege.class.getName(), configuration);
+        createCache(cacheManager, ExerciseColumn.class.getName(), configuration);
+        createCache(cacheManager, AccountColumn.class.getName(), configuration);
         
         return cacheManager;
     }

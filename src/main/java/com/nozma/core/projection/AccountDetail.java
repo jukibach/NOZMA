@@ -19,6 +19,7 @@ public interface AccountDetail extends Serializable {
     interface UserInfo {
         String getFirstName();
         String getLastName();
+        String getBirthdate();
         
         default String getFullName() {
             return getFirstName().concat(" ").concat(getLastName());

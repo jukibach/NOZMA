@@ -32,7 +32,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query(value = """
         SELECT accounts
         FROM accounts accounts
-        WHERE accounts.accountName   ILIKE CONCAT('%',:searchValue, '%')
+        WHERE :searchValue IS NULL
+        OR accounts.accountName      ILIKE CONCAT('%',:searchValue, '%')
         OR accounts.user.firstName   ILIKE CONCAT('%',:searchValue, '%')
         OR accounts.user.lastName    ILIKE CONCAT('%',:searchValue, '%')
         OR accounts.email            ILIKE CONCAT('%',:searchValue, '%')
@@ -40,10 +41,11 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     countQuery = """
         SELECT COUNT(accounts)
         FROM accounts accounts
-        WHERE accounts.accountName       ILIKE CONCAT('%',:searchValue, '%')
-            OR accounts.user.firstName   ILIKE CONCAT('%',:searchValue, '%')
-            OR accounts.user.lastName    ILIKE CONCAT('%',:searchValue, '%')
-            OR accounts.email            ILIKE CONCAT('%',:searchValue, '%')
+        WHERE :searchValue IS NULL
+                OR accounts.accountName      ILIKE CONCAT('%',:searchValue, '%')
+                OR accounts.user.firstName   ILIKE CONCAT('%',:searchValue, '%')
+                OR accounts.user.lastName    ILIKE CONCAT('%',:searchValue, '%')
+                OR accounts.email            ILIKE CONCAT('%',:searchValue, '%')
     """)
     @Transactional(readOnly = true)
     Page<AccountDetail> fetchAllByPaging(Pageable pageable, @Param("searchValue") String searchValue);

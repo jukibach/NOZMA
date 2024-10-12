@@ -12,4 +12,6 @@ public class ChangePasswordPayload {
     private String newPassword;
     
     private String confirmPassword;
+    
+    
 }
