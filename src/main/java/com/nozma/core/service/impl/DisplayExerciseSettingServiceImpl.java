@@ -4,6 +4,7 @@ import com.nozma.core.dto.request.UpdateDisplaySettingPayload;
 import com.nozma.core.dto.response.UpdateDisplaySettingResponse;
 import com.nozma.core.entity.exercises.DisplayExerciseSetting;
 import com.nozma.core.enums.StatusAndMessage;
+import com.nozma.core.exception.AccountNotFoundException;
 import com.nozma.core.exception.BusinessException;
 import com.nozma.core.mapper.DisplaySettingMapper;
 import com.nozma.core.repository.DisplayExerciseSettingRepository;
@@ -33,7 +34,7 @@ public class DisplayExerciseSettingServiceImpl implements DisplayExerciseSetting
         if (Objects.isNull(SecurityUtil.getCurrentAccountId())
                 || !Objects.equals(accountId, SecurityUtil.getCurrentAccountId())
         ) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST);
+            throw new AccountNotFoundException();
         }
         
         var displayExerciseSettings = displayExerciseSettingRepository

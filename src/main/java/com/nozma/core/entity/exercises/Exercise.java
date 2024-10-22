@@ -30,8 +30,8 @@ public class Exercise extends BaseDomain {
     private Long id;
     private String name;
     private String description;
-    private String majorMuscle;
-    private String mechanics;
-    private String bodyRegion;
-    private String laterality;
+    private Long majorMuscleId;
+    private Long mechanicsId;
+    private Long bodyRegionId;
+    private Long lateralityId;
 }

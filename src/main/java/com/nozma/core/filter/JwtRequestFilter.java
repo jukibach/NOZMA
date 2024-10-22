@@ -45,8 +45,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 if (tokenService.checkTokenExistsInBlackList(profileToken))
                     throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);
                     
-//                    throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_LOGOUT);
-                
                 TokenDetail tokenDetail = tokenService.validateToken(profileToken);
                 if (CommonUtil.isNonNullOrNonEmpty(tokenDetail.getAccountName())
                         && CommonUtil.isNullOrEmpty(SecurityContextHolder.getContext().getAuthentication())) {

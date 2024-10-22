@@ -29,9 +29,12 @@ key:
     local-path: classpath:keys/
 logging:
     level:
+        com.nozma.core: DEBUG
         org:
             hibernate:
                 cache: DEBUG
+            springframework:
+                web: INFO
 management:
     endpoint:
         health:
@@ -53,7 +56,7 @@ server:
 
 spring:
     application:
-        name: user-service
+        name: nozma
     aws:
         access-key: aaaaaaa
         secret-key: aaaaaaa

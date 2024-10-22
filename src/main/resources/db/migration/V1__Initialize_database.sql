@@ -124,9 +124,9 @@ CREATE INDEX idx_t_accounts_email ON s_account.t_accounts (email);
 
 -- Example data for t_users table
 INSERT INTO s_account.t_users (first_name, middle_name, last_name, phone_number, birthdate)
-VALUES ('John', 'Robert', 'Doe', '1234567890', '01-01-2000'),
-       ('Jane', NULL, 'Smith', '9876543210', '01-01-2000'),
-       ('Michael', 'James', 'Williams', '5551234567', '01-01-2000');
+VALUES ('John', 'Robert', 'Doe', '1234567890', '01/01/2000'),
+       ('Jane', NULL, 'Smith', '9876543210', '01/01/2000'),
+       ('Michael', 'James', 'Williams', '5551234567', '01/01/2000');
 
 -- Example data for t_accounts table
 INSERT INTO s_account.t_accounts (account_name, password, email, user_id, role_id, from_date, to_date)

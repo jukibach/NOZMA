@@ -10,8 +10,11 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -20,9 +23,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString(callSuper = true)
+@RequiredArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "t_password_histories", schema = "s_account")
@@ -43,4 +49,18 @@ public class PasswordHistory extends BaseDomain implements Serializable {
     private LocalDate toDate;
     private Long accountId;
     
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof PasswordHistory that)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+    
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
+    }
 }

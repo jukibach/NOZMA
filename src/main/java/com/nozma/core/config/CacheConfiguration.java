@@ -12,6 +12,7 @@ import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.repository.ExerciseColumnRepository;
 import com.nozma.core.repository.RolePrivilegeRepository;
+import com.nozma.core.repository.RoleRepository;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
@@ -51,7 +52,7 @@ public class CacheConfiguration {
         createCache(cacheManager, AccountRepository.ACCOUNT_BY_ID, configuration);
         
         createCache(cacheManager, AccountColumnRepository.ALL_ACCOUNT_COLUMN, configuration);
-        
+        createCache(cacheManager, RoleRepository.ROLE_BY_ID, configuration);
         createCache(cacheManager, RolePrivilegeRepository.PRIVILEGES_BY_ROLE_ID, configuration);
         createCache(cacheManager, ExerciseColumnRepository.EXERCISE_COLUMN_VIEW_BY_STATUS, configuration);
         

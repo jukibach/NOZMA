@@ -131,7 +131,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         newAccount.setUser(newUser);
         newAccount.setFromDate(fromDate);
         newAccount.setToDate(toDate);
-        newAccount.setRole(roleRepository.findById(Role.USER.getId()).get());
+        newAccount.setRole(roleRepository.getReferenceById(Role.USER.getId()));
         newAccount = accountRepository.save(newAccount);
         
         var accountDetails = JwtAccountDetails.builder()
@@ -142,7 +142,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
         var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
         var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
-        
         var privilegeNames = rolePrivilegeRepository.findPrivilegeNamesByRoleId(Role.USER.getId());
         
         PasswordHistory passwordHistory = PasswordHistory.builder()
@@ -158,7 +157,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         //         Adjust createdBy and updatedBy of the audit log
         //         Util
         //         Send email
-        
         
         return new UserRegistrationResponse(newAccount.getAccountName(), newAccount.getEmail(),
                 refreshToken, profileToken, Collections.singletonList(Role.USER.getRoleName()), privilegeNames);
@@ -215,7 +213,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     
     @Override
     public void changePassword(ChangePasswordPayload payload) {
-        var currentAccount = accountService.findByAccountName(SecurityUtil.getCurrentAccountName());
+        
+        var currentAccount = accountService.findAccountById(SecurityUtil.getCurrentAccountId());
         
         checkChangePassword(payload, currentAccount);
         

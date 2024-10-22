@@ -24,8 +24,9 @@ public enum StatusAndMessage implements IEnumStatusAndMessage {
     
     USER_DOES_NOT_EXIST(MessageId.E108),
     
-    ACCOUNT_HAS_BEEN_LOGOUT(MessageId.E109)
-    ;
+    ACCOUNT_HAS_BEEN_LOGOUT(MessageId.E109),
+    
+    NO_RESULT(MessageId.E110);
     
     private final String message;
 }

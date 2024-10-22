@@ -7,6 +7,9 @@ import com.nozma.core.dto.response.EditableAccountResponse;
 import com.nozma.core.entity.account.Account;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.security.auth.login.AccountNotFoundException;
 
 public interface AccountService {
     Account findByAccountName(String accountName);
@@ -18,4 +21,6 @@ public interface AccountService {
     AccountDetailResponse updateAccount(Long accountId, @Valid UpdateAccountPayload payload);
     
     void deactivateAccount(long accountId);
+    
+    Account findAccountById(long accountId) ;
 }

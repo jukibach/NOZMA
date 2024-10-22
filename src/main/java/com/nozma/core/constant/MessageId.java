@@ -2,6 +2,8 @@ package com.nozma.core.constant;
 
 public class MessageId {
     
+    private MessageId() {}
+    
     public static final String OK = "OK";
     
     public static final String E101 = "E101";
@@ -21,4 +23,6 @@ public class MessageId {
     public static final String E108 = "E108";
     
     public static final String E109 = "E109";
+    
+    public static final String E110 = "E110";
 }

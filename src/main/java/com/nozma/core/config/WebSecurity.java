@@ -138,6 +138,7 @@ public class WebSecurity implements WebMvcConfigurer {
                                 * */
                                 .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestor 'self"))
                 )
+//                .exceptionHandling()
                 .authorizeHttpRequests(authorizeHttpRequest ->
                         authorizeHttpRequest
                                 .requestMatchers(

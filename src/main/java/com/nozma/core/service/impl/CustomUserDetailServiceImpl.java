@@ -3,12 +3,11 @@ package com.nozma.core.service.impl;
 import com.nozma.core.entity.account.JwtAccountDetails;
 import com.nozma.core.enums.RecordStatus;
 import com.nozma.core.enums.StatusAndMessage;
+import com.nozma.core.exception.AccountNotFoundException;
 import com.nozma.core.exception.BusinessException;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.repository.RolePrivilegeRepository;
-import com.nozma.core.repository.UserRepository;
 import com.nozma.core.service.LoginHistoryService;
-import com.nozma.core.util.CommonUtil;
 import com.nozma.core.util.DateUtil;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
@@ -28,22 +27,15 @@ import java.util.Objects;
 @Service
 @AllArgsConstructor
 public class CustomUserDetailServiceImpl implements UserDetailsService {
-    
     private final AccountRepository accountRepository;
-    
-    private final UserRepository userRepository;
-    
     private final RolePrivilegeRepository rolePrivilegeRepository;
-    
     private final LoginHistoryService loginHistoryService;
     
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String accountName) throws UsernameNotFoundException {
         var account = accountRepository.findOneByAccountName(accountName)
-                .orElseThrow(() ->
-                        new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST)
-        );
+                .orElseThrow(AccountNotFoundException::new);
         
         if (account.isLocked()) {
             loginHistoryService.unlockWhenExpired(account);

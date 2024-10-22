@@ -5,6 +5,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -26,11 +28,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldNameConstants
+@ToString(callSuper = true)
 @Table(name = "t_accounts", schema = "s_account")
 @Entity(name = "accounts")
 @Getter
@@ -64,13 +68,29 @@ public class Account extends BaseDomain implements Serializable {
     
     private boolean isPasswordGenerated;
     
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+    @ToString.Exclude
     private Role role;
     
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ToString.Exclude
     private User user;
+    
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof Account that)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+    
+    @Override
+    public final int hashCode() {
+        return getId().hashCode();
+    }
 }

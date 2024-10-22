@@ -84,13 +84,13 @@ public class ExerciseServiceImpl implements ExerciseService {
         List<ExerciseRow> exerciseRows = mybatisExerciseMapper.selectDynamicFields(
                 visibleColumnCodes,
                 exercisePagePayload,
-                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName())
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().get())
         );
         
         int totalRowsCount = mybatisExerciseMapper.countExerciseRows(
                 visibleColumnCodes,
                 exercisePagePayload,
-                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName())
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().get())
         );
         
         List<ExerciseRowResponse> exerciseRowResponses = exerciseRows

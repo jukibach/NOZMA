@@ -8,19 +8,21 @@ import com.nozma.core.dto.response.EditableAccountResponse;
 import com.nozma.core.entity.account.Account;
 import com.nozma.core.entity.account.AccountColumn;
 import com.nozma.core.enums.RecordStatus;
-import com.nozma.core.enums.StatusAndMessage;
-import com.nozma.core.exception.BusinessException;
+import com.nozma.core.exception.AccountNotFoundException;
 import com.nozma.core.projection.AccountDetail;
 import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.service.AccountService;
 import com.nozma.core.util.DateUtil;
+import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,8 +44,8 @@ public class AccountServiceImpl implements AccountService {
     public Account findByAccountName(String accountName) {
         
         return accountRepository.findOneByAccountName(accountName)
-                .orElseThrow(() ->
-                        new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST)
+                .orElseThrow(
+                        AccountNotFoundException::new
                 );
     }
     
@@ -53,7 +55,7 @@ public class AccountServiceImpl implements AccountService {
         Page<AccountDetail> accountDetails = accountRepository.fetchAllByPaging(pageable, searchName);
         
         if (accountDetails.isEmpty()) {
-            throw new BusinessException("There are no account details!");
+            throw new NoResultException();
         }
         
         List<AccountColumn> accountColumns = accountColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
@@ -106,11 +108,11 @@ public class AccountServiceImpl implements AccountService {
         var account = findAccountById(accountId);
         
         if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
+            throw new DisabledException(Strings.EMPTY);
         }
         
         if (account.isLocked()) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
+            throw new LockedException(Strings.EMPTY);
         }
         
         return new EditableAccountResponse(
@@ -188,23 +190,24 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
     
-    private Account getAccountValidation(long accountId) {
+    private Account getAccountValidation(long accountId)  {
         var account = findAccountById(accountId);
         
         if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
+            throw new DisabledException(Strings.EMPTY);
         }
         
         if (account.isLocked()) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
+            throw new LockedException(Strings.EMPTY);
         }
         
         return account;
     }
     
+    @Override
     public Account findAccountById(long accountId) {
-        return accountRepository.findOneById(accountId).orElseThrow(() ->
-                new BusinessException(StatusAndMessage.ACCOUNT_DOES_NOT_EXIST)
+        return accountRepository.findOneById(accountId).orElseThrow(
+                AccountNotFoundException::new
         );
     }
     
