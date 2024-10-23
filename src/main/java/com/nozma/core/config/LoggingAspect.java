@@ -13,6 +13,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -136,11 +138,15 @@ public class LoggingAspect {
                         exclusiveRequestURL -> httpServletRequest.getRequestURI().contains(exclusiveRequestURL)
                 );
         
-        String arguments = isExclusiveRequest
+        String method = joinPoint.getSignature().getName();
+        boolean isValidatingToken = method.toLowerCase().contains("token");
+        
+        String arguments = isExclusiveRequest || isValidatingToken
                 ? "[Sensitive arguments]"
                 : JsonUtils.convertToJson(Arrays.toString(joinPoint.getArgs()));
         
         long startTime = System.currentTimeMillis();
+        
         if (log.isDebugEnabled()) {
             log.debug("""
                             
@@ -149,7 +155,7 @@ public class LoggingAspect {
                                 Argument[s] = {}
                             -------------------------------------------
                             """
-                    , joinPoint.getSignature().getName()
+                    , method
                     , arguments
             );
         }
