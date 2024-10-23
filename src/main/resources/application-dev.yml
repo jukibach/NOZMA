@@ -21,9 +21,9 @@ cors:
     allowExposedHeaders: Content-Disposition, Content-Type, Content-Length
     allowHeaders: '*'
     allowMethods: GET,PUT,POST,DELETE,OPTION,PATCH
-    allowOrigins: '*'
+    allowOrigins: https://nozma.netlify.app
 key:
-    aws-kms-key-id: arn:aws:kms:ap-southeast-2:111111:key/123456789
+    aws-kms-key-id: arn:aws:kms:ap-southeast-2:11111111:key/123456789
     jwt-sign-private-key: private-key.pem
     jwt-sign-public-key: public-key.pem
     local-path: classpath:keys/
