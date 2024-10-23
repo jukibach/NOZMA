@@ -29,12 +29,12 @@ key:
     local-path: classpath:keys/
 logging:
     level:
-        com.nozma.core: INFO
+        com.nozma.core: DEBUG
         org:
             hibernate:
-                cache: INFO
+                cache: DEBUG
             springframework:
-                web: INFO
+                web: DEBUG
 management:
     endpoint:
         health:
@@ -76,4 +76,3 @@ spring:
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: false
         open-in-view: true
-
