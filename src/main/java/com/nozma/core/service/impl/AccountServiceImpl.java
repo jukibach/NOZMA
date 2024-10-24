@@ -89,10 +89,10 @@ public class AccountServiceImpl implements AccountService {
         
         Function<AccountColumn, AccountColumnResponse> convertToAccountColumnResponse =
                 accountColumnView -> new AccountColumnResponse(
-                accountColumnView.getCode(),
-                accountColumnView.getName(),
-                accountColumnView.getType()
-        );
+                        accountColumnView.getCode(),
+                        accountColumnView.getName(),
+                        accountColumnView.getType()
+                );
         
         return new AccountPageResponse(
                 pageable.getPageSize(),
@@ -158,7 +158,17 @@ public class AccountServiceImpl implements AccountService {
         Account account = validatesAndGetsAccount(accountId);
         
         clearUserCaches(account);
-
+        
+        account.setAccountName(payload.getAccountName().trim());
+        
+        account.setEmail(payload.getEmail().trim());
+        
+        account.getUser().setFirstName(payload.getFirstName().trim());
+        
+        account.getUser().setLastName(payload.getLastName().trim());
+        
+        account.getUser().setBirthdate(payload.getBirthdate().trim());
+        
         var accountDetails = JwtAccountDetails.builder()
                 .account(Account.builder()
                         .id(account.getId())
@@ -203,7 +213,7 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
     
-    private Account validatesAndGetsAccount(long accountId)  {
+    private Account validatesAndGetsAccount(long accountId) {
         var account = findAccountById(accountId);
         
         if (RecordStatus.DELETED.equals(account.getStatus())) {
