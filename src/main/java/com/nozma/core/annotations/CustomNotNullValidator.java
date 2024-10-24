@@ -3,10 +3,9 @@ package com.nozma.core.annotations;
 import com.nozma.core.exception.BusinessException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-
-import java.util.Objects;
 
 public class CustomNotNullValidator implements ConstraintValidator<CustomNotNull, String> {
     private String fieldCode;
@@ -24,7 +23,7 @@ public class CustomNotNullValidator implements ConstraintValidator<CustomNotNull
     
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (Objects.isNull(value)) {
+        if (Strings.isBlank(value)) {
             String fieldName = messageSource.getMessage(fieldCode, null, LocaleContextHolder.getLocale());
             throw new BusinessException(messageCode, fieldName);
         }

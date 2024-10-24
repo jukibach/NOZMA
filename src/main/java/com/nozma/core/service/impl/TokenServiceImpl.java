@@ -13,6 +13,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.nozma.core.cache.CacheStore;
 import com.nozma.core.config.ApplicationProperties;
+import com.nozma.core.entity.account.Account;
 import com.nozma.core.entity.account.JwtAccountDetails;
 import com.nozma.core.entity.account.TokenDetail;
 import com.nozma.core.enums.StatusAndMessage;
@@ -43,7 +44,7 @@ public class TokenServiceImpl implements TokenService {
             throws BusinessException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         log.info("Generating {}", tokenType);
         var currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.SECOND, -30);
+        currentDate.add(Calendar.SECOND, -30); // Delay between steps
         var expiryDate = Calendar.getInstance();
         
         if (TokenType.PROFILE_TOKEN.equals(tokenType)) {
@@ -53,8 +54,8 @@ public class TokenServiceImpl implements TokenService {
         }
         
         JWTCreator.Builder jwt = JWT.create()
-                .withSubject(jwtAccountDetails.getAccountName())
-                .withClaim("accountId", jwtAccountDetails.getAccount().getId())
+                .withSubject(String.valueOf(jwtAccountDetails.getAccount().getId()))
+                .withClaim(Account.Fields.accountName, jwtAccountDetails.getAccount().getAccountName())
                 .withIssuedAt(currentDate.getTime())
                 .withExpiresAt(expiryDate.getTime());
         
@@ -71,10 +72,10 @@ public class TokenServiceImpl implements TokenService {
             DecodedJWT decodedJWT = verifier.verify(token);
             
             return TokenDetail.builder()
-                    .accountId(decodedJWT.getClaim("accountId").asLong())
+                    .accountId(Long.valueOf(decodedJWT.getSubject()))
                     .expiryDate(decodedJWT.getExpiresAt())
                     .issueDate(decodedJWT.getIssuedAt())
-                    .accountName(decodedJWT.getSubject())
+                    .accountName(decodedJWT.getClaim(Account.Fields.accountName).asString())
                     .build();
         } catch (TokenExpiredException exception) {
             throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);

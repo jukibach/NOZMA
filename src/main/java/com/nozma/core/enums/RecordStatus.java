@@ -5,5 +5,6 @@ import lombok.Getter;
 @Getter
 public enum RecordStatus {
     ACTIVE,
-    INACTIVE
+    DELETED,
+    LOCKED
 }

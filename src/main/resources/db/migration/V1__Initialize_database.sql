@@ -104,7 +104,6 @@ CREATE TABLE IF NOT EXISTS s_account.t_accounts
     password              VARCHAR(100) NOT NULL,
     email                 VARCHAR(200) NOT NULL UNIQUE,
     status                VARCHAR(12)  NOT NULL DEFAULT 'ACTIVE',
-    is_locked             BOOLEAN      NOT NULL DEFAULT FALSE,
     user_id               BIGINT       NOT NULL REFERENCES s_account.t_users,
     role_id               INT          NOT NULL REFERENCES s_account.m_roles,
     last_locked           TIMESTAMPTZ,

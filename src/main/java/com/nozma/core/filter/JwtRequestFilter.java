@@ -46,8 +46,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);
                     
                 TokenDetail tokenDetail = tokenService.validateToken(profileToken);
+                
                 if (CommonUtil.isNonNullOrNonEmpty(tokenDetail.getAccountName())
                         && CommonUtil.isNullOrEmpty(SecurityContextHolder.getContext().getAuthentication())) {
+                    
                     var userDetails = userDetailsService.loadUserByUsername(tokenDetail.getAccountName());
                     
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new

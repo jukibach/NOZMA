@@ -20,6 +20,5 @@ VALUES ('accountName', 'Account Name', 'text'),
        ('creationTime', 'Date Created', 'date'),
        ('lastModified', 'Date Modified', 'date'),
        ('status', 'Status', 'text'),
-       ('isLocked', 'Locked ?', 'text'),
        ('action', 'Action', 'text');
 

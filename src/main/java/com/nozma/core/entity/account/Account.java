@@ -58,8 +58,6 @@ public class Account extends BaseDomain implements Serializable {
     @Email
     private String email;
     
-    private boolean isLocked;
-    
     private LocalDateTime lastLocked;
     
     private LocalDate fromDate;

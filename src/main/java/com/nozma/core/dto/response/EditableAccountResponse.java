@@ -10,6 +10,7 @@ public record EditableAccountResponse(
         String creationTime,
         String lastModified,
         String status,
-        String isLocked
+        String profileToken,
+        String refreshToken
 ) {
 }

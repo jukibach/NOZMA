@@ -52,12 +52,6 @@ public class AuthenticationController {
         return ResponseEntityUtil.createSuccessResponseWithoutData();
     }
     
-    @PostMapping(value = ApiURL.REISSUE_PASSWORD)
-    public ResponseEntity<ApiResponse> reissuePassword(@Valid @RequestParam String accountName) {
-        authenticationService.reissuePassword(accountName);
-        return ResponseEntityUtil.createSuccessResponseWithoutData();
-    }
-    
     @PostMapping(value = ApiURL.LOGOUT)
     public ResponseEntity<ApiResponse> logout(@Valid @RequestBody String profileToken) {
         authenticationService.logout(profileToken);

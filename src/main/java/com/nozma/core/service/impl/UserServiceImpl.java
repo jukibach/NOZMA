@@ -1,6 +1,6 @@
 package com.nozma.core.service.impl;
 
-import com.nozma.core.dto.request.UpdateAccountPayload;
+import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.request.UserRegistrationRequest;
 import com.nozma.core.entity.account.User;
 import com.nozma.core.enums.RecordStatus;
@@ -8,7 +8,6 @@ import com.nozma.core.exception.BusinessException;
 import com.nozma.core.mapper.UserMapper;
 import com.nozma.core.repository.UserRepository;
 import com.nozma.core.service.UserService;
-import com.nozma.core.util.CommonUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
     
     @Override
     @Transactional
-    public void updateUser(UpdateAccountPayload payload, Long userId) {
+    public void updateUser(EditableAccountPayload payload, Long userId) {
         var user = userRepository.findByIdAndStatus(userId, RecordStatus.ACTIVE);
         
         userRepository.save(user);
@@ -51,10 +50,10 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User does not exist!");
         }
-        if (RecordStatus.INACTIVE.equals(user.get().getStatus())) {
+        if (RecordStatus.DELETED.equals(user.get().getStatus())) {
             throw new UsernameNotFoundException("User was deleted!");
         }
-        user.get().setStatus(RecordStatus.INACTIVE);
+        user.get().setStatus(RecordStatus.DELETED);
         userRepository.save(user.get());
     }
 }

@@ -3,7 +3,7 @@ package com.nozma.core.projection;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public interface AccountDetail extends Serializable {
+public interface AccountView extends Serializable {
     long getId();
     String getAccountName();
     String getEmail();
@@ -14,7 +14,6 @@ public interface AccountDetail extends Serializable {
     LocalDateTime getUpdatedDate();
     
     String getStatus();
-    boolean getIsLocked();
     
     interface UserInfo {
         String getFirstName();

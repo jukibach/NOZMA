@@ -37,12 +37,12 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
         var account = accountRepository.findOneByAccountName(accountName)
                 .orElseThrow(AccountNotFoundException::new);
         
-        if (account.isLocked()) {
+        if (RecordStatus.LOCKED.equals(account.getStatus())) {
             loginHistoryService.unlockWhenExpired(account);
             throw new LockedException(Strings.EMPTY);
         }
         
-        if (RecordStatus.INACTIVE.equals(account.getStatus())) {
+        if (RecordStatus.DELETED.equals(account.getStatus())) {
             throw new DisabledException(Strings.EMPTY);
         }
         

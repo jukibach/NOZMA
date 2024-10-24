@@ -1,7 +1,7 @@
 package com.nozma.core.repository;
 
 import com.nozma.core.entity.account.Account;
-import com.nozma.core.projection.AccountDetail;
+import com.nozma.core.projection.AccountView;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -48,7 +48,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
                 OR accounts.email            ILIKE CONCAT('%',:searchValue, '%')
     """)
     @Transactional(readOnly = true)
-    Page<AccountDetail> fetchAllByPaging(Pageable pageable, @Param("searchValue") String searchValue);
+    Page<AccountView> fetchAllByPaging(Pageable pageable, @Param("searchValue") String searchValue);
     
     boolean existsByAccountName(String accountName);
     

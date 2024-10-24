@@ -62,7 +62,7 @@ public class JwtAccountDetails implements UserDetails {
     
     @Override
     public boolean isAccountNonLocked() {
-        return !account.isLocked();
+        return !RecordStatus.LOCKED.equals(account.getStatus());
     }
     
     @Override

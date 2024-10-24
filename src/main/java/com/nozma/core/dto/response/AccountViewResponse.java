@@ -1,17 +1,13 @@
 package com.nozma.core.dto.response;
 
-import java.util.List;
-
-public record AccountDetailResponse(
+public record AccountViewResponse(
         Long accountId,
         String accountName,
         String email,
-        String firstName,
-        String lastName,
+        String fullName,
         String birthdate,
         String creationTime,
         String lastModified,
-        String status,
-        List<AccountColumnResponse> columns
+        String status
 ) {
 }

@@ -1,18 +1,22 @@
 package com.nozma.core.service.impl;
 
-import com.nozma.core.dto.request.UpdateAccountPayload;
+import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.response.AccountColumnResponse;
 import com.nozma.core.dto.response.AccountDetailResponse;
 import com.nozma.core.dto.response.AccountPageResponse;
+import com.nozma.core.dto.response.AccountViewResponse;
 import com.nozma.core.dto.response.EditableAccountResponse;
 import com.nozma.core.entity.account.Account;
 import com.nozma.core.entity.account.AccountColumn;
+import com.nozma.core.entity.account.JwtAccountDetails;
 import com.nozma.core.enums.RecordStatus;
+import com.nozma.core.enums.TokenType;
 import com.nozma.core.exception.AccountNotFoundException;
-import com.nozma.core.projection.AccountDetail;
+import com.nozma.core.projection.AccountView;
 import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.service.AccountService;
+import com.nozma.core.service.TokenService;
 import com.nozma.core.util.DateUtil;
 import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
@@ -26,6 +30,9 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -38,6 +45,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountColumnRepository accountColumnRepository;
     private final AccountRepository accountRepository;
     private final CacheManager cacheManager;
+    private final TokenService tokenService;
     
     @Override
     @Transactional(readOnly = true)
@@ -50,33 +58,33 @@ public class AccountServiceImpl implements AccountService {
     }
     
     @Override
+    @Transactional(readOnly = true)
     public AccountPageResponse getAccountList(Pageable pageable, String searchName) {
         
-        Page<AccountDetail> accountDetails = accountRepository.fetchAllByPaging(pageable, searchName);
+        Page<AccountView> accountViews = accountRepository.fetchAllByPaging(pageable, searchName);
         
-        if (accountDetails.isEmpty()) {
+        if (accountViews.isEmpty()) {
             throw new NoResultException();
         }
         
         List<AccountColumn> accountColumns = accountColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
         
-        Function<AccountDetail, AccountDetailResponse> convert = accountDetail ->
-                new AccountDetailResponse(
-                        accountDetail.getId(),
-                        accountDetail.getAccountName(),
-                        accountDetail.getEmail(),
-                        accountDetail.getUser().getFullName(),
-                        accountDetail.getUser().getBirthdate(),
+        Function<AccountView, AccountViewResponse> convert = accountView ->
+                new AccountViewResponse(
+                        accountView.getId(),
+                        accountView.getAccountName(),
+                        accountView.getEmail(),
+                        accountView.getUser().getFullName(),
+                        accountView.getUser().getBirthdate(),
                         DateUtil.formatDateTime(
-                                accountDetail.getCreatedDate(),
+                                accountView.getCreatedDate(),
                                 DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
                         ),
                         DateUtil.formatDateTime(
-                                accountDetail.getUpdatedDate(),
+                                accountView.getUpdatedDate(),
                                 DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND
                         ),
-                        accountDetail.getStatus(),
-                        accountDetail.getIsLocked() ? "YES" : "NO"
+                        accountView.getStatus()
                 );
         
         Function<AccountColumn, AccountColumnResponse> convertToAccountColumnResponse =
@@ -89,12 +97,12 @@ public class AccountServiceImpl implements AccountService {
         return new AccountPageResponse(
                 pageable.getPageSize(),
                 pageable.getPageNumber(),
-                accountDetails.getTotalElements(),
+                accountViews.getTotalElements(),
                 accountColumns
                         .stream()
                         .map(convertToAccountColumnResponse)
                         .toList(),
-                accountDetails
+                accountViews
                         .getContent()
                         .stream()
                         .map(convert)
@@ -103,17 +111,65 @@ public class AccountServiceImpl implements AccountService {
     }
     
     @Override
-    public EditableAccountResponse getAccountDetail(long accountId) {
+    @Transactional(readOnly = true)
+    public AccountDetailResponse getAccountDetail(long accountId) {
         
         var account = findAccountById(accountId);
         
-        if (RecordStatus.INACTIVE.equals(account.getStatus())) {
+        if (RecordStatus.DELETED.equals(account.getStatus())) {
             throw new DisabledException(Strings.EMPTY);
         }
         
-        if (account.isLocked()) {
+        if (RecordStatus.LOCKED.equals(account.getStatus())) {
             throw new LockedException(Strings.EMPTY);
         }
+        
+        List<AccountColumn> accountColumns = accountColumnRepository.findAllByStatus(RecordStatus.ACTIVE);
+        
+        Function<AccountColumn, AccountColumnResponse> convertToAccountColumnResponse =
+                accountColumnView -> new AccountColumnResponse(
+                        accountColumnView.getCode(),
+                        accountColumnView.getName(),
+                        accountColumnView.getType()
+                );
+        
+        return new AccountDetailResponse(
+                accountId,
+                account.getAccountName(),
+                account.getEmail(),
+                account.getUser().getFirstName(),
+                account.getUser().getLastName(),
+                account.getUser().getBirthdate(),
+                DateUtil.formatDateTime(account.getCreatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
+                DateUtil.formatDateTime(account.getUpdatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
+                account.getStatus().toString(),
+                accountColumns
+                        .stream()
+                        .map(convertToAccountColumnResponse)
+                        .toList()
+        );
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public EditableAccountResponse updateAccount(Long accountId, EditableAccountPayload payload)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        
+        Account account = validatesAndGetsAccount(accountId);
+        
+        clearUserCaches(account);
+
+        var accountDetails = JwtAccountDetails.builder()
+                .account(Account.builder()
+                        .id(account.getId())
+                        .accountName(account.getAccountName())
+                        .build())
+                .build();
+        
+        var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
+        var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
+        
+        accountRepository.save(account);
         
         return new EditableAccountResponse(
                 accountId,
@@ -125,79 +181,36 @@ public class AccountServiceImpl implements AccountService {
                 DateUtil.formatDateTime(account.getCreatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 DateUtil.formatDateTime(account.getUpdatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
                 account.getStatus().toString(),
-                account.isLocked() ? "YES" : "NO"
+                profileToken,
+                refreshToken
         );
-    }
-    
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public AccountDetailResponse updateAccount(Long accountId, UpdateAccountPayload payload) {
-        
-        Account account = getAccountValidation(accountId);
-        
-        clearUserCaches(account);
-        
-        if (Strings.isNotBlank(payload.getAccountName())) {
-            account.setAccountName(payload.getAccountName().trim());
-        }
-        
-        if (Strings.isNotBlank(payload.getEmail())) {
-            account.setEmail(payload.getEmail().trim());
-        }
-        
-        if (Strings.isNotBlank(payload.getFirstName())) {
-            account.getUser().setFirstName(payload.getFirstName().trim());
-        }
-        
-        if (Strings.isNotBlank(payload.getLastName())) {
-            account.getUser().setLastName(payload.getLastName().trim());
-        }
-        
-        if (Strings.isNotBlank(payload.getBirthdate())) {
-            account.getUser().setBirthdate(payload.getBirthdate().trim());
-        }
-        
-        accountRepository.save(account);
-        
-        return new AccountDetailResponse(
-                accountId,
-                account.getAccountName(),
-                account.getEmail(),
-                account.getUser().getFullName(),
-                account.getUser().getBirthdate(),
-                DateUtil.formatDateTime(account.getCreatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
-                DateUtil.formatDateTime(account.getUpdatedDate(), DateUtil.YEAR_MONTH_HOUR_MINUTE_SECOND),
-                account.getStatus().toString(),
-                account.isLocked() ? "YES" : "NO"
-        );
-        
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deactivateAccount(long accountId) {
-        var account = getAccountValidation(accountId);
+        var account = validatesAndGetsAccount(accountId);
         
         clearUserCaches(account);
         
         // Deactivate account
-        account.setStatus(RecordStatus.INACTIVE);
+        account.setStatus(RecordStatus.DELETED);
         
         // Deactivate user
-        account.getUser().setStatus(RecordStatus.INACTIVE);
+        account.getUser().setStatus(RecordStatus.DELETED);
         
         // TODO: Deactivate login histories
         accountRepository.save(account);
     }
     
-    private Account getAccountValidation(long accountId)  {
+    private Account validatesAndGetsAccount(long accountId)  {
         var account = findAccountById(accountId);
         
-        if (RecordStatus.INACTIVE.equals(account.getStatus())) {
+        if (RecordStatus.DELETED.equals(account.getStatus())) {
             throw new DisabledException(Strings.EMPTY);
         }
         
-        if (account.isLocked()) {
+        if (RecordStatus.LOCKED.equals(account.getStatus())) {
             throw new LockedException(Strings.EMPTY);
         }
         

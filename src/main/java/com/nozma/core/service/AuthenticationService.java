@@ -19,8 +19,6 @@ public interface AuthenticationService {
     
     UserRegistrationResponse registerNewAccount(UserRegistrationRequest request) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException;
     
-    void reissuePassword(String accountName);
-    
     ReissueTokenResponse reissueToken(@Valid ReissueTokenPayload payload) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException;
     
     void logout(String token);

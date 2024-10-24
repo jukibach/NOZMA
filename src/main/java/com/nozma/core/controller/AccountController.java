@@ -2,7 +2,7 @@ package com.nozma.core.controller;
 
 import com.nozma.core.constant.ApiURL;
 import com.nozma.core.constant.Privileges;
-import com.nozma.core.dto.request.UpdateAccountPayload;
+import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.response.ApiResponse;
 import com.nozma.core.service.AccountService;
 import com.nozma.core.util.ResponseEntityUtil;
@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @RestController
 @AllArgsConstructor
@@ -43,11 +47,12 @@ public class AccountController {
     }
     
     @PreAuthorize("hasAuthority('" + Privileges.UPDATE_USER + "')")
-    @PatchMapping(value = ApiURL.ACCOUNT_BY_ID)
+    @PutMapping(value = ApiURL.ACCOUNT_BY_ID)
     public ResponseEntity<ApiResponse> updateAccount(
             @PathVariable(value = "id") Long accountId,
-            @Valid @RequestBody UpdateAccountPayload payload
-    ) {
+            @Valid @RequestBody EditableAccountPayload payload
+    ) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        
         return ResponseEntityUtil.createSuccessfulOkResponse(accountService.updateAccount(accountId, payload));
     }
     

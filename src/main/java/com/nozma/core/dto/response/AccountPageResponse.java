@@ -7,6 +7,6 @@ public record AccountPageResponse(
         Integer pageIndex,
         long totalRecords,
         List<AccountColumnResponse> columns,
-        List<AccountDetailResponse> response
+        List<AccountViewResponse> response
 ) {
 }

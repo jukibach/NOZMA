@@ -29,7 +29,6 @@ import com.nozma.core.service.TokenService;
 import com.nozma.core.service.UserService;
 import com.nozma.core.util.CommonUtil;
 import com.nozma.core.util.DateUtil;
-import com.nozma.core.util.PasswordGeneratorUtil;
 import com.nozma.core.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +63,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final PasswordGeneratorUtil passwordGeneratorUtil;
     private final PasswordHistoryRepository passwordHistoryRepository;
     private final ApplicationProperties applicationProperties;
     private final RoleRepository roleRepository;
@@ -86,10 +84,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             var profileToken = tokenService.generateToken(accountDetails, TokenType.PROFILE_TOKEN);
             var refreshToken = tokenService.generateToken(accountDetails, TokenType.REFRESH_TOKEN);
             
-            return new LoginResponse(account.getId(), account.getAccountName(), account.getEmail(), profileToken, refreshToken,
-                    accountDetails.getUserRole(), accountDetails.getPrivileges());
+            return new LoginResponse(
+                    account.getId(), account.getAccountName(), account.getEmail(),
+                    profileToken, refreshToken, accountDetails.getUserRole(), accountDetails.getPrivileges()
+            );
             
         } catch (Exception exception) {
+            
             var account = accountRepository.findOneByAccountName(request.getAccountName());
             
             if (account.isPresent()) {
@@ -109,12 +110,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public UserRegistrationResponse registerNewAccount(UserRegistrationRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (!Objects.equals(request.password(), request.confirmedPassword())) {
-            log.error("Password is incorrect");
             throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
         }
         
         if (accountRepository.existsByAccountName(request.accountName())) {
-            log.error("Account already existed");
             throw new BusinessException(StatusAndMessage.ACCOUNT_ALREADY_EXISTED);
         }
         
@@ -163,29 +162,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
     
     @Override
-    public void reissuePassword(String accountName) {
-        var account = accountService.findByAccountName(accountName);
-        
-        if (account.isLocked()) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_LOCKED_AFTER_5_FAILED_ATTEMPTS);
-        }
-        if (RecordStatus.INACTIVE.equals(account.getStatus())) {
-            throw new BusinessException(StatusAndMessage.ACCOUNT_HAS_BEEN_DELETED);
-        }
-        
-        var generatedPassword = passwordGeneratorUtil.generatePassword();
-        var encodedPassword = passwordEncoder.encode(generatedPassword);
-        
-        updatePasswordInTheDatabase(account, generatedPassword, Boolean.TRUE);
-        // TODO : Send email
-    }
-    
-    @Override
     public ReissueTokenResponse reissueToken(
             ReissueTokenPayload payload) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+        
         if (tokenService.checkTokenExistsInBlackList(payload.getRefreshToken())) {
             throw new BusinessException("Token is invalid");
         }
+        
         TokenDetail tokenDetail = tokenService.validateToken(payload.getRefreshToken());
         if (!tokenDetail.getAccountId().equals(payload.getAccountId())) {
             throw new BusinessException("Account is invalid");
@@ -204,6 +187,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new ReissueTokenResponse(profileToken, refreshToken);
     }
     
+    // TODO: Forgot password
+    
     @Override
     public void logout(String token) {
         if (CommonUtil.isNonNullOrNonEmpty(token)) {
@@ -220,12 +205,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         
         String encryptedPassword = passwordEncoder.encode(payload.getNewPassword());
         
-        updatePasswordInTheDatabase(currentAccount, encryptedPassword, Boolean.FALSE);
+        updatePasswordInTheDatabase(currentAccount, encryptedPassword);
         
     }
     
     // TODO: What if I register -> create a new history. I change password again ?
-    private void updatePasswordInTheDatabase(Account account, String encryptedPassword, boolean isPasswordGenerated) {
+    private void updatePasswordInTheDatabase(Account account, String encryptedPassword) {
         LocalDate fromDate = DateUtil.getCurrentDate();
         
         LocalDate toDate = DateUtil.plusDay(fromDate, applicationProperties.getPasswordDurationInDays());
@@ -236,7 +221,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setPassword(encryptedPassword);
         account.setFromDate(fromDate);
         account.setToDate(toDate);
-        account.setPasswordGenerated(isPasswordGenerated);
+        account.setPasswordGenerated(Boolean.FALSE);
         
         PasswordHistory passwordHistory = PasswordHistory.builder()
                 .password(oldPassword)

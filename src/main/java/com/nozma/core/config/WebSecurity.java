@@ -138,7 +138,6 @@ public class WebSecurity implements WebMvcConfigurer {
                                 * */
                                 .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestor 'self"))
                 )
-//                .exceptionHandling()
                 .authorizeHttpRequests(authorizeHttpRequest ->
                         authorizeHttpRequest
                                 .requestMatchers(
@@ -146,7 +145,6 @@ public class WebSecurity implements WebMvcConfigurer {
                                         EndpointRequest.to(InfoEndpoint.class)
                                 ).permitAll()
                                 .requestMatchers(
-                                        ApiURL.ROOT_PATH + ApiURL.REISSUE_PASSWORD,
                                         ApiURL.ROOT_PATH + ApiURL.REISSUE_TOKEN,
                                         ApiURL.ROOT_PATH + ApiURL.REGISTER_USER,
                                         ApiURL.ROOT_PATH + ApiURL.LOGIN,

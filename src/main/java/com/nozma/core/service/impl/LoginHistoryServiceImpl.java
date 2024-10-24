@@ -4,6 +4,7 @@ import com.nozma.core.cache.CacheStore;
 import com.nozma.core.config.ApplicationProperties;
 import com.nozma.core.dto.request.LoginRequest;
 import com.nozma.core.entity.account.Account;
+import com.nozma.core.enums.RecordStatus;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.service.LoginHistoryService;
 import com.nozma.core.util.CommonUtil;
@@ -59,7 +60,7 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
         }
         
         // Lock account
-        account.setLocked(true);
+        account.setStatus(RecordStatus.LOCKED);
         account.setLastLocked(LocalDateTime.now());
         accountRepository.save(account);
         
@@ -74,7 +75,7 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
         LocalDateTime unlockTime = account.getLastLocked().plusMinutes(applicationProperties.getLockTimeInMinute());
         LocalDateTime currentTime = LocalDateTime.now();
         if (currentTime.isAfter(unlockTime)) {
-            account.setLocked(false);
+            account.setStatus(RecordStatus.LOCKED);
             account.setLastLocked(null);
             log.info("Account {} has been unlocked after lock time expired!", account.getAccountName());
             resetFailedAttempts(account.getAccountName());
