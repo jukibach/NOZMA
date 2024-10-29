@@ -71,7 +71,6 @@ public class ApplicationProperties {
     @Value("${key.jwt-sign-private-key}")
     private String jwtSignPrivateKey; // TODO: what is a der file ?
     
-    
     @Value("${key.jwt-sign-public-key}")
     private String jwtSignPublicKey; // TODO: what is a der file ?
     

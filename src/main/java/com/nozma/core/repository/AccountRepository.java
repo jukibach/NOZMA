@@ -21,12 +21,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     
     @EntityGraph(attributePaths = {"role", "user"})
     @Cacheable(cacheNames = ACCOUNT_BY_NAME, unless = "#result == null")
-    @Transactional(readOnly = true)
     Optional<Account> findOneByAccountName(String accountName);
     
     @EntityGraph(attributePaths = {"role", "user"})
     @Cacheable(cacheNames = ACCOUNT_BY_ID, unless = "#result == null")
-    @Transactional(readOnly = true)
     Optional<Account> findOneById(long accountId);
     
     @Query(value = """
@@ -47,7 +45,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
                 OR accounts.user.lastName    ILIKE CONCAT('%',:searchValue, '%')
                 OR accounts.email            ILIKE CONCAT('%',:searchValue, '%')
     """)
-    @Transactional(readOnly = true)
     Page<AccountView> fetchAllByPaging(Pageable pageable, @Param("searchValue") String searchValue);
     
     boolean existsByAccountName(String accountName);

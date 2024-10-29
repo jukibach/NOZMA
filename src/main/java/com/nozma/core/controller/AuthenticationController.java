@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class AuthenticationController {
         return ResponseEntityUtil.createSuccessfulOkResponse(authenticationService.login(request));
     }
     
-    @PostMapping(value = ApiURL.REGISTER_USER) // Based on AWS
+    @PostMapping(value = ApiURL.REGISTER_USER)
     public ResponseEntity<ApiResponse> registerNewUserAccount(@RequestBody UserRegistrationRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         return ResponseEntityUtil.createSuccessResponseWithCreatedStatus(

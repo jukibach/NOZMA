@@ -109,6 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public UserRegistrationResponse registerNewAccount(UserRegistrationRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        
         if (!Objects.equals(request.password(), request.confirmedPassword())) {
             throw new BusinessException(StatusAndMessage.INCORRECT_PASSWORD);
         }

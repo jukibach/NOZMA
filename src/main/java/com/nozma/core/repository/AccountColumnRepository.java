@@ -14,7 +14,6 @@ public interface AccountColumnRepository extends JpaRepository<AccountColumn, Lo
     String ALL_ACCOUNT_COLUMN = "allAccountColumn";
     
     @Cacheable(cacheNames = ALL_ACCOUNT_COLUMN)
-    @Transactional(readOnly = true)
     List<AccountColumn> findAllByStatus(RecordStatus status);
     
 }

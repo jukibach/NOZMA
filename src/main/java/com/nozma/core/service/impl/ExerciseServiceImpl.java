@@ -69,7 +69,6 @@ public class ExerciseServiceImpl implements ExerciseService {
                         .description(true)
                         .build()));
         
-        // IF there are no changes, does it execute this code ??
         displayExerciseSettings = Optional.of(displayExerciseSettingRepository.save(displayExerciseSettings.get()));
         
         List<ExerciseColumnResponse> exerciseColumnResponses = setColumnResponses(displayExerciseSettings.get(),
@@ -84,13 +83,13 @@ public class ExerciseServiceImpl implements ExerciseService {
         List<ExerciseRow> exerciseRows = mybatisExerciseMapper.selectDynamicFields(
                 visibleColumnCodes,
                 exercisePagePayload,
-                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().get())
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().orElse(null))
         );
         
         int totalRowsCount = mybatisExerciseMapper.countExerciseRows(
                 visibleColumnCodes,
                 exercisePagePayload,
-                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().get())
+                List.of(Constant.SYSTEM_AUDITOR, SecurityUtil.getCurrentAccountName().orElse(null))
         );
         
         List<ExerciseRowResponse> exerciseRowResponses = exerciseRows

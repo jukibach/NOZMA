@@ -13,7 +13,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -163,7 +161,8 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
             
-            boolean isExclusiveEntity = Objects.nonNull(result) && EXCLUSIVE_ENTITIES.contains(result.getClass().getName());
+            boolean isExclusiveEntity = Objects.nonNull(result) && EXCLUSIVE_ENTITIES.contains(
+                    result.getClass().getName());
             
             String jsonValue = isExclusiveRequest || isExclusiveEntity
                     ? "[Sensitive result]" : JsonUtils.convertToJson(result);

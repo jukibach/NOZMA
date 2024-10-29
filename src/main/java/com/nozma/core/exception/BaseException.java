@@ -12,6 +12,7 @@ public class BaseException extends RuntimeException {
         this.status = status;
         this.message = message;
     }
+    
     public BaseException(Throwable cause, HttpStatus status, String message) {
         super(cause);
         this.status = status;
