@@ -1,4 +1,4 @@
-package com.nozma.core.service;
+package com.nozma.core.service.accounts;
 
 import com.nozma.core.dto.request.ChangePasswordPayload;
 import com.nozma.core.dto.request.LoginRequest;
@@ -9,7 +9,6 @@ import com.nozma.core.dto.response.ReissueTokenResponse;
 import com.nozma.core.dto.response.UserRegistrationResponse;
 import jakarta.validation.Valid;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

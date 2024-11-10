@@ -3,7 +3,7 @@ package com.nozma.core.filter;
 import com.nozma.core.entity.account.TokenDetail;
 import com.nozma.core.enums.StatusAndMessage;
 import com.nozma.core.exception.BusinessException;
-import com.nozma.core.service.TokenService;
+import com.nozma.core.service.accounts.TokenService;
 import com.nozma.core.util.CommonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -35,16 +37,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
     private final MessageSource messageSource;
+    private static final String REQUEST_ID = "requestId";
     
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws IOException {
         var profileToken = CommonUtil.retrieveToken(request);
+        String requestId = UUID.randomUUID().toString();
+        MDC.put(REQUEST_ID, requestId);
+        
         try {
             if (CommonUtil.isNonNullOrNonEmpty(profileToken)) {
                 if (tokenService.checkTokenExistsInBlackList(profileToken))
                     throw new BusinessException(StatusAndMessage.TOKEN_EXPIRED);
-                    
                 TokenDetail tokenDetail = tokenService.validateToken(profileToken);
                 
                 if (CommonUtil.isNonNullOrNonEmpty(tokenDetail.getAccountName())
@@ -73,6 +78,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             else
                 handleNormalException(response, ex);
             
+        } finally {
+            MDC.clear();
         }
     }
     

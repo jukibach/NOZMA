@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 public @interface CustomNotNull {
     String message();
     String fieldCode(); // Use fieldCode instead of fieldName
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
 }

@@ -1,5 +1,6 @@
 package com.nozma.core.enums;
 
-public interface IEnumStatusAndMessage {
+public sealed interface IEnumStatusAndMessage
+        permits StatusAndMessage{
     String getMessage();
 }

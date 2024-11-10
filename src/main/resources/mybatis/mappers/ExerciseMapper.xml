@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.nozma.core.mybatis.mapper.MybatisExerciseMapper">
+
     <resultMap id="ExerciseRowMap" type="ExerciseRow">
 
         <id column="exercise_id" property="id"/>
@@ -84,7 +85,7 @@
         </foreach>
 
         <if test="exercisePagePayload.searchName != null">
-            AND  exercises.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
+            AND exercises.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
 
             <if test="exerciseColumnNames.contains('majorMuscle')">
                 OR major_muscle.name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
@@ -121,6 +122,42 @@
             <if test="exerciseColumnNames.contains('equipments')">
                 OR equipments.equipments_name ILIKE CONCAT('%', #{exercisePagePayload.searchName}, '%')
             </if>
+        </if>
+
+        <if test="exercisePagePayload.exerciseName != null">
+            AND exercises.name ILIKE CONCAT('%', #{exercisePagePayload.exerciseName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.majorMuscleName != null">
+            AND major_muscle.name ILIKE CONCAT('%', #{exercisePagePayload.majorMuscleName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.bodyRegionName != null">
+            AND body_regions.name ILIKE CONCAT('%', #{exercisePagePayload.bodyRegionName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.lateralityName != null">
+            AND laterality.name ILIKE CONCAT('%', #{exercisePagePayload.lateralityName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.mechanicsName != null">
+            AND mechanics.name ILIKE CONCAT('%', #{exercisePagePayload.mechanicsName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.exercisesTypeName != null">
+            AND exercises_types.types_name ILIKE CONCAT('%', #{exercisePagePayload.exercisesTypeName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.muscleGroupName != null">
+            AND muscle_groups.muscle_group_name ILIKE CONCAT('%', #{exercisePagePayload.muscleGroupName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.movementPatternName != null">
+            AND movement_patterns.movement_patterns_name ILIKE CONCAT('%', #{exercisePagePayload.movementPatternName}, '%')
+        </if>
+
+        <if test="exercisePagePayload.equipmentName != null">
+            AND equipments.equipments_name ILIKE CONCAT('%', #{exercisePagePayload.equipmentName}, '%')
         </if>
     </sql>
 

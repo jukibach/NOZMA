@@ -29,12 +29,12 @@ key:
     local-path: classpath:keys/
 logging:
     level:
-        com.nozma.core: DEBUG
+        com.nozma.core: INFO
         org:
             hibernate:
-                cache: DEBUG
+                cache: INFO
             springframework:
-                web: DEBUG
+                web: INFO
 management:
     endpoint:
         health:

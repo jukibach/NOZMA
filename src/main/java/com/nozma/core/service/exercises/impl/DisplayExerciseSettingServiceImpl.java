@@ -1,15 +1,12 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.exercises.impl;
 
 import com.nozma.core.dto.request.UpdateDisplaySettingPayload;
 import com.nozma.core.dto.response.UpdateDisplaySettingResponse;
 import com.nozma.core.entity.exercises.DisplayExerciseSetting;
-import com.nozma.core.enums.StatusAndMessage;
 import com.nozma.core.exception.AccountNotFoundException;
-import com.nozma.core.exception.BusinessException;
 import com.nozma.core.mapper.DisplaySettingMapper;
 import com.nozma.core.repository.DisplayExerciseSettingRepository;
-import com.nozma.core.service.DisplayExerciseSettingService;
-import com.nozma.core.util.CommonUtil;
+import com.nozma.core.service.exercises.DisplayExerciseSettingService;
 import com.nozma.core.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;

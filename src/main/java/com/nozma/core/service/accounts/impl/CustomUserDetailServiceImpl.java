@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.nozma.core.entity.account.JwtAccountDetails;
 import com.nozma.core.enums.RecordStatus;
@@ -7,7 +7,7 @@ import com.nozma.core.exception.AccountNotFoundException;
 import com.nozma.core.exception.BusinessException;
 import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.repository.RolePrivilegeRepository;
-import com.nozma.core.service.LoginHistoryService;
+import com.nozma.core.service.accounts.LoginHistoryService;
 import com.nozma.core.util.DateUtil;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;

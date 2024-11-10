@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
@@ -19,7 +19,7 @@ import com.nozma.core.entity.account.TokenDetail;
 import com.nozma.core.enums.StatusAndMessage;
 import com.nozma.core.enums.TokenType;
 import com.nozma.core.exception.BusinessException;
-import com.nozma.core.service.TokenService;
+import com.nozma.core.service.accounts.TokenService;
 import com.nozma.core.util.CommonUtil;
 import com.nozma.core.util.KeyProviderUtil;
 import lombok.AllArgsConstructor;

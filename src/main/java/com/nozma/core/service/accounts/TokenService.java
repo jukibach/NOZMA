@@ -1,4 +1,4 @@
-package com.nozma.core.service;
+package com.nozma.core.service.accounts;
 
 import com.nozma.core.entity.account.JwtAccountDetails;
 import com.nozma.core.entity.account.TokenDetail;

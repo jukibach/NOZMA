@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.response.AccountColumnResponse;
@@ -15,8 +15,8 @@ import com.nozma.core.exception.AccountNotFoundException;
 import com.nozma.core.projection.AccountView;
 import com.nozma.core.repository.AccountColumnRepository;
 import com.nozma.core.repository.AccountRepository;
-import com.nozma.core.service.AccountService;
-import com.nozma.core.service.TokenService;
+import com.nozma.core.service.accounts.AccountService;
+import com.nozma.core.service.accounts.TokenService;
 import com.nozma.core.util.DateUtil;
 import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;

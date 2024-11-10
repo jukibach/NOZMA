@@ -1,4 +1,4 @@
-package com.nozma.core.service;
+package com.nozma.core.service.accounts;
 
 import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.response.AccountDetailResponse;

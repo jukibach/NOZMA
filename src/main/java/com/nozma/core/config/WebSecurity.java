@@ -2,8 +2,8 @@ package com.nozma.core.config;
 
 import com.nozma.core.constant.ApiURL;
 import com.nozma.core.filter.JwtRequestFilter;
-import com.nozma.core.service.TokenService;
-import com.nozma.core.service.impl.CustomUserDetailServiceImpl;
+import com.nozma.core.service.accounts.TokenService;
+import com.nozma.core.service.accounts.impl.CustomUserDetailServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -149,7 +149,7 @@ public class WebSecurity implements WebMvcConfigurer {
                                         ApiURL.ROOT_PATH + ApiURL.REGISTER_USER,
                                         ApiURL.ROOT_PATH + ApiURL.LOGIN,
                                         ApiURL.ROOT_PATH + ApiURL.LOGOUT,
-                                        ApiURL.ROOT_PATH + ApiURL.GET_EXERCISE_GUEST
+                                        ApiURL.ROOT_PATH + ApiURL.GET_EXERCISE
                                 ).permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

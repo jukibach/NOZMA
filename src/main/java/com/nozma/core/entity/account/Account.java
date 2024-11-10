@@ -79,6 +79,7 @@ public class Account extends BaseDomain implements Serializable {
     
     @Override
     public final boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof Account that)) {
@@ -86,7 +87,7 @@ public class Account extends BaseDomain implements Serializable {
         }
         return getId() != null && Objects.equals(getId(), that.getId());
     }
-    
+
     @Override
     public final int hashCode() {
         return getId().hashCode();

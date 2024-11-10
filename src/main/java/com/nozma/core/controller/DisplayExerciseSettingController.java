@@ -4,7 +4,7 @@ import com.nozma.core.constant.ApiURL;
 import com.nozma.core.constant.Privileges;
 import com.nozma.core.dto.request.UpdateDisplaySettingPayload;
 import com.nozma.core.dto.response.ApiResponse;
-import com.nozma.core.service.DisplayExerciseSettingService;
+import com.nozma.core.service.exercises.DisplayExerciseSettingService;
 import com.nozma.core.util.ResponseEntityUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

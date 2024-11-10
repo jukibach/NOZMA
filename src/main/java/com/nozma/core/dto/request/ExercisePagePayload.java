@@ -5,6 +5,7 @@ import com.nozma.core.util.CommonUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,23 +14,17 @@ import java.util.Optional;
 
 @Setter
 @AllArgsConstructor
-public class ExercisePagePayload {
+public class ExercisePagePayload extends PagePayload {
     
-    private Integer pageSize;
-    private Integer pageIndex;
     @Getter
     private String searchName;
     
     @Getter
+    @NonNull
+    private String userType;
+    
+    @Getter
     private String[] sort;
-    
-    public Integer getPageSize() {
-        return Optional.ofNullable(pageSize).orElse(20);
-    }
-    
-    public Integer getPageIndex() {
-        return Optional.ofNullable(pageIndex).orElse(0) * getPageSize();
-    }
     
     private String sortOrders;
     
@@ -63,4 +58,22 @@ public class ExercisePagePayload {
         return orderBy;
     }
     
+    @Getter
+    private String exerciseName;
+    @Getter
+    private String majorMuscleName;
+    @Getter
+    private String bodyRegionName;
+    @Getter
+    private String lateralityName;
+    @Getter
+    private String mechanicsName;
+    @Getter
+    private String exercisesTypeName;
+    @Getter
+    private String muscleGroupName;
+    @Getter
+    private String movementPatternName;
+    @Getter
+    private String equipmentName;
 }

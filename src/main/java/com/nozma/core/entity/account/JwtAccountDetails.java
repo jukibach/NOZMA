@@ -34,6 +34,7 @@ public class JwtAccountDetails implements UserDetails {
         return role;
     }
     
+    // Authenticate password between requests and database
     @Override
     public String getPassword() {
         return account.getPassword();

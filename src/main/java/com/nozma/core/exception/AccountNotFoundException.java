@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class AccountNotFoundException extends BaseException {
+public non-sealed class AccountNotFoundException extends BaseException {
     private final transient Object result;
     
     public AccountNotFoundException() {

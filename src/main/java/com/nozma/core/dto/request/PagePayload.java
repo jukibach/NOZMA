@@ -1,12 +1,23 @@
 package com.nozma.core.dto.request;
 
-import org.springframework.data.domain.Pageable;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record PagePayload(
-        Pageable pageable,
-        String searchName
-) {
-    public PagePayload(Pageable pageable) {
-        this(pageable, null);
+import java.util.Optional;
+
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class PagePayload {
+    private Integer pageSize;
+    private Integer pageIndex;
+    
+    public Integer getPageSize() {
+        return Optional.ofNullable(pageSize).orElse(20);
+    }
+    
+    public Integer getPageIndex() {
+        return Optional.ofNullable(pageIndex).orElse(0) * getPageSize();
     }
 }

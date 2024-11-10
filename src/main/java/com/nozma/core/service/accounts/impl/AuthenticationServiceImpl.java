@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.nozma.core.config.ApplicationProperties;
 import com.nozma.core.dto.request.ChangePasswordPayload;
@@ -22,11 +22,11 @@ import com.nozma.core.repository.AccountRepository;
 import com.nozma.core.repository.PasswordHistoryRepository;
 import com.nozma.core.repository.RolePrivilegeRepository;
 import com.nozma.core.repository.RoleRepository;
-import com.nozma.core.service.AccountService;
-import com.nozma.core.service.AuthenticationService;
-import com.nozma.core.service.LoginHistoryService;
-import com.nozma.core.service.TokenService;
-import com.nozma.core.service.UserService;
+import com.nozma.core.service.accounts.AccountService;
+import com.nozma.core.service.accounts.AuthenticationService;
+import com.nozma.core.service.accounts.LoginHistoryService;
+import com.nozma.core.service.accounts.TokenService;
+import com.nozma.core.service.accounts.UserService;
 import com.nozma.core.util.CommonUtil;
 import com.nozma.core.util.DateUtil;
 import com.nozma.core.util.SecurityUtil;
@@ -41,6 +41,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -67,6 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final ApplicationProperties applicationProperties;
     private final RoleRepository roleRepository;
     
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public LoginResponse login(LoginRequest request)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {

@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.nozma.core.dto.request.EditableAccountPayload;
 import com.nozma.core.dto.request.UserRegistrationRequest;
@@ -7,7 +7,7 @@ import com.nozma.core.enums.RecordStatus;
 import com.nozma.core.exception.BusinessException;
 import com.nozma.core.mapper.UserMapper;
 import com.nozma.core.repository.UserRepository;
-import com.nozma.core.service.UserService;
+import com.nozma.core.service.accounts.UserService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -6,7 +6,7 @@ import com.nozma.core.dto.request.LoginRequest;
 import com.nozma.core.dto.request.ReissueTokenPayload;
 import com.nozma.core.dto.request.UserRegistrationRequest;
 import com.nozma.core.dto.response.ApiResponse;
-import com.nozma.core.service.AuthenticationService;
+import com.nozma.core.service.accounts.AuthenticationService;
 import com.nozma.core.util.ResponseEntityUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

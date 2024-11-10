@@ -1,4 +1,4 @@
-package com.nozma.core.service.impl;
+package com.nozma.core.service.accounts.impl;
 
 import com.nozma.core.cache.CacheStore;
 import com.nozma.core.config.ApplicationProperties;
@@ -6,7 +6,7 @@ import com.nozma.core.dto.request.LoginRequest;
 import com.nozma.core.entity.account.Account;
 import com.nozma.core.enums.RecordStatus;
 import com.nozma.core.repository.AccountRepository;
-import com.nozma.core.service.LoginHistoryService;
+import com.nozma.core.service.accounts.LoginHistoryService;
 import com.nozma.core.util.CommonUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

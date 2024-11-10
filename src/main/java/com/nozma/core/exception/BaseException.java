@@ -4,7 +4,10 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class BaseException extends RuntimeException {
+public sealed class BaseException
+        extends RuntimeException
+        permits AccountNotFoundException, BusinessException {
+    
     private final HttpStatus status;
     private final String message;
     
